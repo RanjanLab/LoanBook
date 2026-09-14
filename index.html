@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LoanBook - Borrower Ledger</title>
+    
+    <meta name="theme-color" content="#0b0f19">
+    <link rel="manifest" id="pwaManifest">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        /* Default Dark Theme Variables */
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #151e2e;
+            --border-color: #2a374e;
+            --primary: #3b82f6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --input-bg: rgba(0, 0, 0, 0.3);
+            --header-bg: rgba(11, 15, 25, 0.95);
+            --drawer-bg: #151e2e;
+        }
+
+        /* Light Theme Overrides */
+        body.light-theme {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --border-color: #cbd5e1;
+            --primary: #2563eb;
+            --success: #059669;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --input-bg: #f8fafc;
+            --header-bg: rgba(255, 255, 255, 0.95);
+            --drawer-bg: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; transition: background-color 0.2s ease, color 0.2s ease; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 90px; }
+
+        /* Auth Screen */
+        .auth-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color); z-index: 2000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;
+        }
+        .auth-card {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 20px; padding: 24px; width: 100%; max-width: 380px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .auth-header { text-align: center; margin-bottom: 20px; }
+        .auth-header .notebook-icon-header {
+            width: 64px; height: 64px; margin: 0 auto 10px auto; display: block;
+        }
+        .auth-header h2 { font-size: 1.5rem; font-weight: 800; color: var(--text-main); }
+        .auth-header p { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+        .auth-tabs { display: flex; background: rgba(0,0,0,0.08); border-radius: 10px; padding: 4px; margin-bottom: 16px; }
+        .auth-tab { flex: 1; padding: 10px; text-align: center; font-size: 0.85rem; font-weight: 700; cursor: pointer; border-radius: 8px; color: var(--text-muted); }
+        .auth-tab.active { background: var(--primary); color: white; }
+
+        /* Sticky Header */
+        header {
+            position: sticky; top: 0; background: var(--header-bg);
+            backdrop-filter: blur(10px); padding: 12px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-color); z-index: 100;
+        }
+        .user-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .user-avatar {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #1d4ed8); color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.1rem; border: 2px solid rgba(255, 255, 255, 0.15);
+            flex-shrink: 0;
+        }
+        .user-info { display: flex; flex-direction: column; }
+        .user-name { font-size: 0.95rem; font-weight: 700; color: var(--text-main); line-height: 1.2; }
+        .user-phone { font-size: 0.75rem; color: var(--text-muted); margin-top: 1px; }
+        .header-right { display: flex; align-items: center; gap: 8px; }
+        .btn-header-icon { background: rgba(0, 0, 0, 0.05); border: 1px solid var(--border-color); color: var(--primary); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: pointer; }
+        
+        /* Wallet Pill Button */
+        .btn-wallet-pill { 
+            color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.4); 
+            background: rgba(245, 158, 11, 0.12); padding: 6px 12px; border-radius: 20px;
+            display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.85rem; cursor: pointer; 
+        }
+
+        /* Offcanvas Side Menu Drawer */
+        .side-menu-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+            z-index: 1200; opacity: 0; pointer-events: none; transition: 0.3s ease;
+        }
+        .side-menu-overlay.active { opacity: 1; pointer-events: all; }
+        .side-drawer {
+            position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+            background: var(--drawer-bg); border-right: 1px solid var(--border-color);
+            z-index: 1300; transition: left 0.3s ease; display: flex; flex-direction: column;
+            padding: 20px; overflow-y: auto;
+        }
+        .side-drawer.active { left: 0; }
+        .drawer-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 15px; }
+        .drawer-title { font-weight: 800; font-size: 1.2rem; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+        .drawer-title .notebook-drawer-icon { width: 26px; height: 26px; }
+        .btn-close-drawer { background: rgba(0, 0, 0, 0.08); border: none; color: var(--text-main); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .drawer-menu-list { list-style: none; display: flex; flex-direction: column; gap: 10px; height: 100%; }
+        .drawer-menu-item {
+            padding: 12px 14px; border-radius: 12px; background: rgba(0, 0, 0, 0.03);
+            display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 0.9rem;
+            color: var(--text-main); cursor: pointer; border: 1px solid transparent;
+        }
+        .drawer-menu-item:hover, .drawer-menu-item:active { background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.3); }
+        .drawer-menu-item i { width: 20px; font-size: 1rem; }
+
+        /* Dashboard Elements */
+        .page-title-banner { padding: 14px 20px 4px 20px; }
+        .page-title-banner h2 { font-size: 1.3rem; font-weight: 800; color: var(--primary); }
+        .summary-container { padding: 12px 20px 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .summary-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 16px; text-align: center; }
+        .summary-card h3 { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .summary-card p { font-size: 1.35rem; font-weight: 800; }
+
+        .loan-list { padding: 0 20px; display: flex; flex-direction: column; gap: 12px; }
+        .loan-list-item { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .item-main-info { display: flex; flex-direction: column; gap: 4px; }
+        .item-name { font-size: 1.05rem; font-weight: 700; color: var(--text-main); }
+        .item-principal { font-size: 0.8rem; color: var(--text-muted); }
+        .due-amount-container { display: flex; flex-direction: column; align-items: flex-end; }
+        .due-label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; }
+        .due-val { font-size: 1.1rem; font-weight: 800; color: var(--danger); }
+
+        /* Full Screen Views */
+        .page-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 500; display: none; flex-direction: column; overflow-y: auto; }
+        .page-view.active { display: flex; }
+        .page-header { position: sticky; top: 0; background: var(--header-bg); backdrop-filter: blur(10px); padding: 16px 20px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); z-index: 10; }
+        .btn-back { background: none; border: none; color: var(--text-main); font-size: 1.2rem; cursor: pointer; }
+        .detail-view-container { padding: 20px; }
+
+        .loan-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 18px; }
+        .loan-card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 14px; }
+        .btn-delete { background: rgba(239, 68, 68, 0.12); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .time-badge { background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-size: 0.78rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(59, 130, 246, 0.25); }
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: rgba(0,0,0,0.05); padding: 14px; border-radius: 12px; margin-bottom: 14px; border: 1px solid var(--border-color); }
+        .detail-item { display: flex; flex-direction: column; }
+        .detail-item .label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+        .detail-item .value { font-size: 0.98rem; font-weight: 700; color: var(--text-main); }
+        .outstanding-box { background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); padding: 12px 14px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .action-row { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+        .btn-pay { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-history { background: rgba(0,0,0,0.05); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 10px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+
+        .fab { position: fixed; bottom: 25px; right: 25px; width: 58px; height: 58px; background: var(--primary); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 22px; box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5); cursor: pointer; z-index: 100; border: none; }
+
+        /* Admin Styles */
+        .admin-nav-tabs { display: flex; gap: 8px; padding: 14px 20px 0 20px; }
+        .admin-nav-tab { flex: 1; padding: 10px 4px; text-align: center; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); cursor: pointer; }
+        .admin-nav-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+        
+        .search-box-container { padding: 14px 20px 6px 20px; }
+        .search-box { width: 100%; padding: 12px 16px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-main); font-size: 0.9rem; outline: none; }
+
+        .admin-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+        .admin-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .badge-pending { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.4); }
+        .badge-success { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.4); }
+        .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        /* Modals & Alerts */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(6px); display: flex; justify-content: center; align-items: center; z-index: 1500; opacity: 0; pointer-events: none; transition: 0.25s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal-content { background: var(--card-bg); width: 90%; max-width: 400px; border-radius: 20px; padding: 24px; border: 1px solid var(--border-color); max-height: 90vh; overflow-y: auto; color: var(--text-main); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .close-btn { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-main); font-size: 0.95rem; outline: none; }
+        .form-group input:disabled { opacity: 0.7; background: rgba(0,0,0,0.05); cursor: not-allowed; }
+        .submit-btn { width: 100%; background: var(--success); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px; }
+        .empty-state { text-align: center; padding: 30px 20px; color: var(--text-muted); }
+
+        .referral-box { background: rgba(0, 0, 0, 0.05); border: 1px dashed var(--primary); padding: 12px; border-radius: 10px; text-align: center; margin-bottom: 16px; position: relative;}
+        .referral-code-txt { font-size: 1.3rem; font-weight: 800; color: var(--primary); letter-spacing: 2px; }
+
+        .ref-user-item {
+            background: rgba(0,0,0,0.03); border: 1px solid var(--border-color);
+            border-radius: 10px; padding: 10px 12px; display: flex;
+            justify-content: space-between; align-items: center; margin-bottom: 8px;
+        }
+        .btn-whatsapp-icon {
+            background: rgba(16, 185, 129, 0.15); color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3); width: 34px; height: 34px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; text-decoration: none;
+        }
+
+        /* PWA Install Banner */
+        .pwa-install-banner { 
+            position: fixed; 
+            bottom: -150px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: calc(100% - 30px); 
+            max-width: 440px; 
+            background: linear-gradient(135deg, rgba(21, 30, 46, 0.96), rgba(15, 23, 42, 0.98)); 
+            border: 1.5px solid rgba(59, 130, 246, 0.5); 
+            border-radius: 16px; 
+            padding: 14px 16px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            z-index: 1500; 
+            transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 15px rgba(59, 130, 246, 0.25); 
+            backdrop-filter: blur(12px);
+        }
+        .pwa-install-banner.show { 
+            bottom: 20px; 
+        }
+
+        .pwa-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), #1d4ed8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            flex-shrink: 0;
+            animation: pulseGlow 2s infinite ease-in-out;
+            padding: 6px;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 4px 20px rgba(59, 130, 246, 0.7); }
+        }
+
+        .pwa-banner-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-pwa-later {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-pwa-later:active {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-pwa-install {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .btn-pwa-install:active {
+            transform: scale(0.96);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Auth Screen -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-card">
+            <div class="auth-header">
+                <!-- Notebook SVG Icon -->
+                <svg class="notebook-icon-header" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="18" y="10" width="68" height="80" rx="10" fill="url(#blue_grad)" stroke="#ffffff" stroke-width="2.5"/>
+                    <path d="M12 24H22M12 40H22M12 56H22M12 72H22" stroke="#e2e8f0" stroke-width="4.5" stroke-linecap="round"/>
+                    <rect x="30" y="24" width="44" height="6" rx="3" fill="#ffffff" opacity="0.9"/>
+                    <rect x="30" y="38" width="34" height="6" rx="3" fill="#ffffff" opacity="0.7"/>
+                    <rect x="30" y="52" width="40" height="6" rx="3" fill="#ffffff" opacity="0.7"/>
+                    <path d="M58 72L64 78L78 64" stroke="#10b981" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs>
+                        <linearGradient id="blue_grad" x1="18" y1="10" x2="86" y2="90" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#3b82f6"/>
+                            <stop offset="1" stop-color="#1d4ed8"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <h2>LoanBook</h2>
+                <p data-i18n="appSubTitle">Personal Borrower Loan Ledger</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')" data-i18n="loginTab">Login</div>
+                <div class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')" data-i18n="registerTab">Register</div>
+            </div>
+
+            <form id="authForm" onsubmit="handleAuthSubmit(event)">
+                <div class="form-group" id="nameFieldGroup" style="display: none;">
+                    <label data-i18n="borrowerNameLabel">Borrower Name</label>
+                    <input type="text" id="authName" placeholder="Enter Your Full Name" data-i18n-ph="borrowerNamePh">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="mobileLabel">Mobile Number</label>
+                    <input type="tel" id="authMobile" pattern="[0-9]{10}" required placeholder="10 Digit Mobile Number" data-i18n-ph="mobilePh">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="passwordLabel">Password</label>
+                    <input type="password" id="authPassword" required placeholder="Enter Password" data-i18n-ph="passwordPh">
+                </div>
+                <div class="form-group" id="referralFieldGroup" style="display: none;">
+                    <label><span data-i18n="referralCodeLabel">Referral Code</span> <span id="refStatusBadge" style="font-size: 0.75rem; color: var(--primary); font-weight: normal;">(Optional)</span></label>
+                    <input type="text" id="authRefCode" placeholder="Enter Referral Code" data-i18n-ph="referralCodePh">
+                </div>
+                <button type="submit" class="submit-btn" id="authSubmitBtn" style="background:var(--primary)" data-i18n="loginBtn">Login as Borrower</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main View -->
+    <div id="mainView" style="display: none;">
+        <header>
+            <div class="user-profile" onclick="toggleMenuDrawer()" title="Click for Menu">
+                <div class="user-avatar" id="borrowerAvatar">B</div>
+                <div class="user-info">
+                    <span class="user-name" id="borrowerDisplayName">Borrower</span>
+                    <span class="user-phone" id="borrowerDisplayMobile">+91 XXXXXXXXXX</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="btn-wallet-pill" onclick="openWalletWithdrawModal()" title="Wallet Balance & Withdraw">
+                    <i class="fa-solid fa-wallet"></i>
+                    <span id="headerWalletBalance">₹0</span>
+                </button>
+                <button class="btn-header-icon" onclick="shareReferralLink()" title="Invite & Share Link">
+                    <i class="fa-solid fa-share-nodes"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="page-title-banner">
+            <h2 data-i18n="lendersListTitle">Lenders List</h2>
+        </div>
+
+        <div class="summary-container">
+            <div class="summary-card">
+                <h3 data-i18n="totalDue">Total Due</h3>
+                <p id="totalOutstandingDisplay" style="color: var(--danger)">₹0</p>
+            </div>
+            <div class="summary-card">
+                <h3 data-i18n="totalRepaid">Total Repaid</h3>
+                <p id="totalPaidDisplay" style="color: var(--success)">₹0</p>
+            </div>
+        </div>
+
+        <div class="loan-list" id="loanList"></div>
+
+        <button class="fab" onclick="openLoanModal()">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+    </div>
+
+    <!-- Side Menu Drawer Overlay -->
+    <div class="side-menu-overlay" id="menuOverlay" onclick="toggleMenuDrawer()"></div>
+    <div class="side-drawer" id="sideDrawer">
+        <div class="drawer-header">
+            <div class="drawer-title">
+                <svg class="notebook-drawer-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="18" y="10" width="68" height="80" rx="10" fill="#3b82f6"/>
+                    <path d="M12 24H22M12 40H22M12 56H22M12 72H22" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+                    <rect x="30" y="24" width="44" height="6" rx="3" fill="#ffffff"/>
+                    <rect x="30" y="38" width="34" height="6" rx="3" fill="#ffffff" opacity="0.8"/>
+                    <rect x="30" y="52" width="40" height="6" rx="3" fill="#ffffff" opacity="0.8"/>
+                </svg>
+                LoanBook
+            </div>
+            <button class="btn-close-drawer" onclick="toggleMenuDrawer()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <ul class="drawer-menu-list">
+            <!-- Theme Toggle Option -->
+            <li class="drawer-menu-item" onclick="toggleTheme()">
+                <i class="fa-solid fa-circle-half-stroke" style="color: #38bdf8"></i>
+                <span id="themeToggleText">Light Mode</span>
+            </li>
+            
+            <!-- Language Switcher Option -->
+            <li class="drawer-menu-item" onclick="toggleLanguage()">
+                <i class="fa-solid fa-language" style="color: #f43f5e"></i>
+                <span id="langToggleText">हिंदी भाषा</span>
+            </li>
+
+            <li class="drawer-menu-item" onclick="toggleMenuDrawer(); openReferralModal();">
+                <i class="fa-solid fa-gift" style="color: var(--warning)"></i> <span data-i18n="menuReferrals">Referrals & Network</span>
+            </li>
+            <li class="drawer-menu-item" onclick="toggleMenuDrawer(); openWalletWithdrawModal();">
+                <i class="fa-solid fa-wallet" style="color: var(--primary)"></i> <span data-i18n="menuWallet">Wallet & Withdraw</span>
+            </li>
+            <li class="drawer-menu-item" onclick="toggleMenuDrawer(); openWalletTxModal();">
+                <i class="fa-solid fa-clock-rotate-left" style="color: #a855f7"></i> <span data-i18n="menuHistory">Wallet History</span>
+            </li>
+            
+            <!-- WhatsApp Support -->
+            <li class="drawer-menu-item" onclick="openWhatsAppSupport()">
+                <i class="fa-brands fa-whatsapp" style="color: var(--success)"></i> <span data-i18n="menuSupport">WhatsApp Support</span>
+            </li>
+            
+            <!-- Admin Panel -->
+            <li class="drawer-menu-item" onclick="toggleMenuDrawer(); openAdminAuthModal();">
+                <i class="fa-solid fa-user-shield" style="color: var(--primary)"></i> <span data-i18n="menuAdmin">Admin Panel</span>
+            </li>
+            
+            <!-- Logout -->
+            <li class="drawer-menu-item" onclick="logoutBorrower()" style="color: var(--danger);">
+                <i class="fa-solid fa-right-from-bracket"></i> <span data-i18n="menuLogout">Logout</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Admin Panel Full Page View -->
+    <div class="page-view" id="adminPage">
+        <div class="page-header">
+            <button class="btn-back" onclick="closeAdminPage()"><i class="fa-solid fa-arrow-left"></i></button>
+            <div>
+                <h2 style="font-size: 1.1rem; font-weight: 700; color:var(--primary);" data-i18n="adminPanelTitle">Admin Control Panel</h2>
+                <span style="font-size: 0.75rem; color: var(--text-muted);" data-i18n="adminPanelSub">Manage Users, Withdrawals & Settings</span>
+            </div>
+        </div>
+
+        <div class="admin-nav-tabs">
+            <div class="admin-nav-tab active" id="tabUsers" onclick="switchAdminTab('users')"><i class="fa-solid fa-users"></i> Users</div>
+            <div class="admin-nav-tab" id="tabWithdrawals" onclick="switchAdminTab('withdrawals')"><i class="fa-solid fa-money-bill-transfer"></i> Withdrawals</div>
+            <div class="admin-nav-tab" id="tabSettings" onclick="switchAdminTab('settings')"><i class="fa-solid fa-gear"></i> Settings</div>
+        </div>
+
+        <div class="search-box-container" id="adminSearchBoxWrapper">
+            <input type="text" class="search-box" id="adminSearchInput" oninput="renderAdminData()" placeholder="Search by Name or Mobile Number...">
+        </div>
+
+        <div id="adminTabUsersContent" style="padding: 10px 20px 20px 20px;"></div>
+        <div id="adminTabWithdrawalsContent" style="padding: 10px 20px 20px 20px; display: none;"></div>
+        
+        <!-- Admin Settings Tab Content -->
+        <div id="adminTabSettingsContent" style="padding: 20px; display: none;">
+            <!-- Card 1: Default Referral Bonus Settings -->
+            <div class="admin-card">
+                <h3 style="font-size: 1.05rem; color: var(--primary); margin-bottom: 14px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                    <i class="fa-solid fa-gift"></i> Referral Bonus Configuration
+                </h3>
+                <form id="adminSettingsForm" onsubmit="saveAdminSettings(event)">
+                    <div class="form-group">
+                        <label>Per Referral Bonus Reward (₹)</label>
+                        <input type="number" id="settingRefBonusInput" required min="0" placeholder="e.g. 50">
+                        <small style="color: var(--text-muted); font-size:0.75rem; margin-top:4px; display:block;">
+                            Naya user referral code use karega toh Referrer aur User dono ko yahi bonus milega.
+                        </small>
+                    </div>
+                    <button type="submit" class="submit-btn" style="background: var(--primary);">Save Settings</button>
+                </form>
+            </div>
+
+            <!-- Card 2: Send Custom Bonus to Single or All Users -->
+            <div class="admin-card">
+                <h3 style="font-size: 1.05rem; color: var(--success); margin-bottom: 14px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                    <i class="fa-solid fa-paper-plane"></i> Send Custom Bonus / Reward
+                </h3>
+                <form id="adminSendBonusForm" onsubmit="sendCustomBonus(event)">
+                    <div class="form-group">
+                        <label>Target Audience</label>
+                        <select id="bonusTargetSelect" onchange="toggleBonusMobileField()">
+                            <option value="single">Single User (By Mobile Number)</option>
+                            <option value="all">All Registered Users</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="bonusMobileGroup">
+                        <label>User Mobile Number</label>
+                        <input type="tel" id="bonusTargetMobile" pattern="[0-9]{10}" placeholder="Enter 10 digit mobile number">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bonus Amount (₹)</label>
+                        <input type="number" id="bonusCustomAmount" required min="1" placeholder="e.g. 100">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Remark / Note</label>
+                        <input type="text" id="bonusCustomRemark" required placeholder="e.g. Festival Offer / Admin Special Reward">
+                    </div>
+
+                    <button type="submit" class="submit-btn" style="background: var(--success);">Send Bonus Now</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Screen Details View -->
+    <div class="page-view" id="detailPage">
+        <div class="page-header">
+            <button class="btn-back" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i></button>
+            <div>
+                <h2 id="detailHeaderTitle" style="font-size: 1.1rem; font-weight: 700;">Lender Details</h2>
+                <span id="detailHeaderSub" style="font-size: 0.75rem; color: var(--text-muted);"></span>
+            </div>
+        </div>
+        <div class="detail-view-container" id="detailPageContent"></div>
+    </div>
+
+    <!-- Full Screen History View -->
+    <div class="page-view" id="historyPage">
+        <div class="page-header">
+            <button class="btn-back" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i></button>
+            <div>
+                <h2 id="historyHeaderTitle" style="font-size: 1.1rem; font-weight: 700;">Repayment History</h2>
+                <span id="historyHeaderSub" style="font-size: 0.75rem; color: var(--text-muted);"></span>
+            </div>
+        </div>
+        <div class="history-content" id="historyPageContent" style="padding:20px; display:flex; flex-direction:column; gap:12px;"></div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div class="modal-overlay" id="adminAuthModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Admin Login</h2>
+                <button class="close-btn" onclick="closeModal('adminAuthModal')">&times;</button>
+            </div>
+            <form id="adminAuthForm" onsubmit="handleAdminLogin(event)">
+                <div class="form-group">
+                    <label>Admin ID</label>
+                    <input type="text" id="adminIdInput" required placeholder="Enter Admin ID">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="adminPassInput" required placeholder="Enter Admin Password">
+                </div>
+                <button type="submit" class="submit-btn" style="background: var(--primary);">Login to Panel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Edit User Modal -->
+    <div class="modal-overlay" id="adminEditUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit User Profile</h2>
+                <button class="close-btn" onclick="closeModal('adminEditUserModal')">&times;</button>
+            </div>
+            <form id="adminEditUserForm" onsubmit="saveAdminEditUser(event)">
+                <input type="hidden" id="editUserMobileKey">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="editUserName" required>
+                </div>
+                <div class="form-group">
+                    <label>Mobile Number</label>
+                    <input type="text" id="editUserMobile" required disabled>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="text" id="editUserPassword" required>
+                </div>
+                <div class="form-group">
+                    <label>Referral Code</label>
+                    <input type="text" id="editUserRefCode" required>
+                </div>
+                <div class="form-group">
+                    <label>Wallet Balance (₹)</label>
+                    <input type="number" id="editUserBonus" required min="0">
+                </div>
+                <button type="submit" class="submit-btn">Update User Info</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Process Withdrawal Modal -->
+    <div class="modal-overlay" id="adminProcessModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Process Withdrawal</h2>
+                <button class="close-btn" onclick="closeModal('adminProcessModal')">&times;</button>
+            </div>
+            <form id="adminProcessForm" onsubmit="saveWithdrawalStatus(event)">
+                <input type="hidden" id="processReqId">
+                <div class="form-group">
+                    <label>Status Action</label>
+                    <select id="processStatus" required>
+                        <option value="Successful">Successful</option>
+                        <option value="Rejected">Rejected (Refund to Wallet)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Admin Remark / Note</label>
+                    <input type="text" id="processRemark" placeholder="e.g. Paid via PhonePe / Invalid UPI">
+                </div>
+                <button type="submit" class="submit-btn">Save Action</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Lender Modal -->
+    <div class="modal-overlay" id="loanModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="newLenderHeader">New Lender Entry</h2>
+                <button class="close-btn" onclick="closeModal('loanModal')">&times;</button>
+            </div>
+            <form id="loanForm" onsubmit="saveLoan(event)">
+                <div class="form-group">
+                    <label data-i18n="lenderNameLabel">Lender Name</label>
+                    <input type="text" id="loanName" required placeholder="Name of Lender / Source" data-i18n-ph="lenderNamePh">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="borrowedAmountLabel">Borrowed Amount (₹)</label>
+                    <input type="number" id="loanAmount" required placeholder="10000" min="1">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="monthlyRateLabel">Monthly Rate (%)</label>
+                    <input type="number" id="loanRate" step="0.1" required placeholder="2" min="0">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="takenDateLabel">Taken Date</label>
+                    <input type="date" id="loanDate" required>
+                </div>
+                <button type="submit" class="submit-btn" data-i18n="saveLenderBtn">Save Lender Record</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="addPaymentHeader">Add Repayment Amount</h2>
+                <button class="close-btn" onclick="closeModal('paymentModal')">&times;</button>
+            </div>
+            <form id="paymentForm" onsubmit="savePayment(event)">
+                <input type="hidden" id="payLoanId">
+                <div class="form-group">
+                    <label data-i18n="paidAmountLabel">Paid Amount (₹)</label>
+                    <input type="number" id="payAmount" required placeholder="1000" min="1">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="paymentDateLabel">Payment Date</label>
+                    <input type="date" id="payDate" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="remarkLabel">Remark / Note (Optional)</label>
+                    <input type="text" id="payRemark" placeholder="e.g., Cash, UPI, Interest payment" data-i18n-ph="remarkPh">
+                </div>
+                <button type="submit" class="submit-btn" data-i18n="recordPaymentBtn">Record Repayment</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Registration Alert Pop-up Modal -->
+    <div class="modal-overlay" id="regAlertModal">
+        <div class="modal-content" style="text-align: center;">
+            <i class="fa-solid fa-circle-check" style="font-size: 3rem; color: var(--success); margin-bottom: 12px;"></i>
+            <h2 style="margin-bottom: 8px;">Registration Successful!</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Your Borrower account is active. Please note down your login credentials:</p>
+            
+            <div style="background: rgba(0,0,0,0.05); padding: 12px; border-radius: 10px; text-align: left; margin-bottom: 18px; border: 1px solid var(--border-color);">
+                <p style="font-size: 0.85rem; margin-bottom: 4px;"><strong>Mobile:</strong> <span id="alertMobile" style="color:var(--primary)"></span></p>
+                <p style="font-size: 0.85rem;"><strong>Password:</strong> <span id="alertPass" style="color:var(--primary)"></span></p>
+            </div>
+            <button class="submit-btn" style="background: var(--primary);" onclick="closeModal('regAlertModal')">Proceed to App</button>
+        </div>
+    </div>
+
+    <!-- Referral & Network Modal -->
+    <div class="modal-overlay" id="referralModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Referral & Network</h2>
+                <button class="close-btn" onclick="closeModal('referralModal')">&times;</button>
+            </div>
+            
+            <div class="referral-box">
+                <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">YOUR SELF REFERRAL CODE</span>
+                <span class="referral-code-txt" id="displayRefCode">-----</span>
+            </div>
+
+            <div class="details-grid" style="margin-bottom: 16px;">
+                <div class="detail-item">
+                    <span class="label">Total Referred Users</span>
+                    <span class="value" id="refCountDisplay">0 Users</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Bonus Earned</span>
+                    <span class="value" style="color:var(--success)" id="refBonusDisplay">₹0</span>
+                </div>
+            </div>
+
+            <h3 style="font-size:0.9rem; color:var(--text-muted); margin-bottom:10px; text-transform:uppercase; font-weight:700;">Referred Members Details</h3>
+            
+            <div id="referredUsersList" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column;"></div>
+
+            <button class="submit-btn" style="background: var(--primary); margin-top:14px;" onclick="shareReferralLink()">
+                <i class="fa-solid fa-share-nodes"></i> Invite & Share Link
+            </button>
+        </div>
+    </div>
+
+    <!-- Wallet & Withdrawal Modal -->
+    <div class="modal-overlay" id="walletWithdrawModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Wallet & Withdrawal</h2>
+                <button class="close-btn" onclick="closeModal('walletWithdrawModal')">&times;</button>
+            </div>
+
+            <div class="summary-card" style="margin-bottom: 16px; background: rgba(0,0,0,0.05);">
+                <h3>Available Wallet Balance</h3>
+                <p id="modalWalletBalance" style="color: var(--warning); font-size: 1.6rem;">₹0</p>
+            </div>
+
+            <form id="withdrawForm" onsubmit="handleWithdraw(event)">
+                <div class="form-group">
+                    <label>Withdrawal Amount (₹)</label>
+                    <input type="number" id="withdrawAmount" required placeholder="Enter amount to withdraw" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Saved UPI ID (Auto Saved)</label>
+                    <input type="text" id="withdrawUpi" required placeholder="e.g. 9876543210@paytm or name@upi">
+                </div>
+
+                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 10px; border-radius: 10px; margin-bottom: 14px;">
+                    <p style="font-size: 0.78rem; color: var(--primary); font-weight: 500;">
+                        <i class="fa-solid fa-circle-info"></i> <strong>Note:</strong> Bonus amount only registered user ke bank account / UPI ID me hi receive hoga.
+                    </p>
+                </div>
+
+                <button type="submit" class="submit-btn" style="background: var(--warning); color:#000;">Submit Withdrawal Request</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Wallet Transactions Modal -->
+    <div class="modal-overlay" id="walletTxModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Wallet History</h2>
+                <button class="close-btn" onclick="closeModal('walletTxModal')">&times;</button>
+            </div>
+            <div id="walletTxList" style="display: flex; flex-direction: column; gap: 10px; max-height: 350px; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <!-- Highlighted PWA Install Popup Banner -->
+    <div class="pwa-install-banner" id="pwaBanner">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="pwa-icon-box">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%;">
+                    <rect x="18" y="10" width="68" height="80" rx="10" fill="#ffffff"/>
+                    <path d="M12 24H22M12 40H22M12 56H22M12 72H22" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"/>
+                    <rect x="30" y="24" width="44" height="6" rx="3" fill="#3b82f6"/>
+                    <rect x="30" y="38" width="34" height="6" rx="3" fill="#3b82f6" opacity="0.7"/>
+                    <rect x="30" y="52" width="40" height="6" rx="3" fill="#3b82f6" opacity="0.7"/>
+                </svg>
+            </div>
+            <div>
+                <h4 style="font-size:0.95rem; font-weight: 800; color: var(--text-main); line-height: 1.2;"> LoanBook App</h4>
+                <p style="font-size:0.75rem; color:var(--text-muted); margin-top: 2px;">Fast, Ready & convenient access</p>
+            </div>
+        </div>
+        <div class="pwa-banner-actions">
+            <button class="btn-pwa-later" id="dismissPwaBtn">Later</button>
+            <button class="btn-pwa-install" id="installPwaBtn">
+                <i class="fa-solid fa-bolt"></i> Install
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Translations Data dictionary
+        const translations = {
+            en: {
+                appSubTitle: "Personal Borrower Loan Ledger",
+                loginTab: "Login",
+                registerTab: "Register",
+                borrowerNameLabel: "Borrower Name",
+                borrowerNamePh: "Enter Your Full Name",
+                mobileLabel: "Mobile Number",
+                mobilePh: "10 Digit Mobile Number",
+                passwordLabel: "Password",
+                passwordPh: "Enter Password",
+                referralCodeLabel: "Referral Code",
+                referralCodePh: "Enter Referral Code",
+                loginBtn: "Login as Borrower",
+                registerBtn: "Register as Borrower",
+                lendersListTitle: "Lenders List",
+                totalDue: "Total Due",
+                totalRepaid: "Total Repaid",
+                menuReferrals: "Referrals & Network",
+                menuWallet: "Wallet & Withdraw",
+                menuHistory: "Wallet History",
+                menuSupport: "WhatsApp Support",
+                menuAdmin: "Admin Panel",
+                menuLogout: "Logout",
+                adminPanelTitle: "Admin Control Panel",
+                adminPanelSub: "Manage Users, Withdrawals & Settings",
+                newLenderHeader: "New Lender Entry",
+                lenderNameLabel: "Lender Name",
+                lenderNamePh: "Name of Lender / Source",
+                borrowedAmountLabel: "Borrowed Amount (₹)",
+                monthlyRateLabel: "Monthly Rate (%)",
+                takenDateLabel: "Taken Date",
+                saveLenderBtn: "Save Lender Record",
+                addPaymentHeader: "Add Repayment Amount",
+                paidAmountLabel: "Paid Amount (₹)",
+                paymentDateLabel: "Payment Date",
+                remarkLabel: "Remark / Note (Optional)",
+                remarkPh: "e.g., Cash, UPI, Interest payment",
+                recordPaymentBtn: "Record Repayment",
+                borrowedTxt: "Borrowed",
+                dueAmountTxt: "Due Amount"
+            },
+            hi: {
+                appSubTitle: "व्यक्तिगत उधारकर्ता ऋण बहीखाता",
+                loginTab: "लॉगिन",
+                registerTab: "रजिस्टर",
+                borrowerNameLabel: "उधारकर्ता का नाम",
+                borrowerNamePh: "अपना पूरा नाम दर्ज करें",
+                mobileLabel: "मोबाइल नंबर",
+                mobilePh: "10 अंकों का मोबाइल नंबर",
+                passwordLabel: "पासवर्ड",
+                passwordPh: "पासवर्ड दर्ज करें",
+                referralCodeLabel: "रेफरल कोड",
+                referralCodePh: "रेफरल कोड दर्ज करें",
+                loginBtn: "उधारकर्ता के रूप में लॉगिन करें",
+                registerBtn: "उधारकर्ता के रूप में रजिस्टर करें",
+                lendersListTitle: "ऋणदाताओं की सूची",
+                totalDue: "कुल बकाया",
+                totalRepaid: "कुल चुकाया गया",
+                menuReferrals: "रेफरल और नेटवर्क",
+                menuWallet: "वॉलेट और निकासी",
+                menuHistory: "वॉलेट इतिहास",
+                menuSupport: "व्हाट्सएप सहायता",
+                menuAdmin: "एडमिन पैनल",
+                menuLogout: "लॉगआउट",
+                adminPanelTitle: "एडमिन कंट्रोल पैनल",
+                adminPanelSub: "उपयोगकर्ता, निकासी और सेटिंग्स प्रबंधित करें",
+                newLenderHeader: "नया ऋणदाता दर्ज करें",
+                lenderNameLabel: "ऋणदाता का नाम",
+                lenderNamePh: "ऋणदाता / स्रोत का नाम",
+                borrowedAmountLabel: "उधार ली गई राशि (₹)",
+                monthlyRateLabel: "मासिक ब्याज दर (%)",
+                takenDateLabel: "ऋण लेने की तिथि",
+                saveLenderBtn: "ऋणदाता रिकॉर्ड सहेजें",
+                addPaymentHeader: "पुनर्भुगतान राशि जोड़ें",
+                paidAmountLabel: "भुगतान की गई राशि (₹)",
+                paymentDateLabel: "भुगतान की तिथि",
+                remarkLabel: "टिप्पणी / नोट (वैकल्पिक)",
+                remarkPh: "जैसे- नकद, यूपीआई, ब्याज भुगतान",
+                recordPaymentBtn: "पुनर्भुगतान दर्ज करें",
+                borrowedTxt: "उधार लिया",
+                dueAmountTxt: "बकाया राशि"
+            }
+        };
+
+        let currentLang = localStorage.getItem('loanBook_lang') || 'en';
+        let currentTheme = localStorage.getItem('loanBook_theme') || 'dark';
+
+        function applyTheme(theme) {
+            currentTheme = theme;
+            if (theme === 'light') {
+                document.body.classList.add('light-theme');
+                document.getElementById('themeToggleText').innerText = currentLang === 'hi' ? 'डार्क मोड' : 'Dark Mode';
+            } else {
+                document.body.classList.remove('light-theme');
+                document.getElementById('themeToggleText').innerText = currentLang === 'hi' ? 'लाइट मोड' : 'Light Mode';
+            }
+            localStorage.setItem('loanBook_theme', theme);
+        }
+
+        function toggleTheme() {
+            applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        }
+
+        function applyLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('loanBook_lang', lang);
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) el.innerText = translations[lang][key];
+            });
+
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                if (translations[lang][key]) el.placeholder = translations[lang][key];
+            });
+
+            document.getElementById('langToggleText').innerText = lang === 'en' ? 'हिंदी भाषा' : 'English Language';
+            document.getElementById('themeToggleText').innerText = currentTheme === 'light' 
+                ? (lang === 'hi' ? 'डार्क मोड' : 'Dark Mode') 
+                : (lang === 'hi' ? 'लाइट मोड' : 'Light Mode');
+
+            if (currentAuthMode) switchAuthTab(currentAuthMode);
+            if (currentBorrower) renderApp();
+        }
+
+        function toggleLanguage() {
+            applyLanguage(currentLang === 'en' ? 'hi' : 'en');
+        }
+
+        /* ---------------- COMPLETE HIGH SPEED PWA ENABLEMENT ---------------- */
+        const notebookSvgIcon = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none"><rect x="18" y="10" width="68" height="80" rx="10" fill="%233b82f6"/><path d="M12 24H22M12 40H22M12 56H22M12 72H22" stroke="%23ffffff" stroke-width="5" stroke-linecap="round"/><rect x="30" y="24" width="44" height="6" rx="3" fill="%23ffffff"/><rect x="30" y="38" width="34" height="6" rx="3" fill="%23ffffff" opacity="0.8"/><rect x="30" y="52" width="40" height="6" rx="3" fill="%23ffffff" opacity="0.8"/><path d="M58 72L64 78L78 64" stroke="%2310b981" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        
+        const manifestData = {
+            "name": "LoanBook Ledger",
+            "short_name": "LoanBook",
+            "start_url": "./",
+            "display": "standalone",
+            "background_color": "#0b0f19",
+            "theme_color": "#0b0f19",
+            "icons": [
+                {
+                    "src": notebookSvgIcon,
+                    "sizes": "192x192 512x512",
+                    "type": "image/svg+xml",
+                    "purpose": "any maskable"
+                }
+            ]
+        };
+        const blob = new Blob([JSON.stringify(manifestData)], {type: 'application/json'});
+        document.getElementById('pwaManifest').setAttribute('href', URL.createObjectURL(blob));
+
+        // High Speed Cache-First Service Worker Blob Registration
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                const CACHE_NAME = 'loanbook-v2';
+                const ASSETS = ['./', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'];
+                
+                self.addEventListener('install', (e) => {
+                    self.skipWaiting();
+                    e.waitUntil(
+                        caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+                    );
+                });
+
+                self.addEventListener('activate', (e) => {
+                    e.waitUntil(
+                        caches.keys().then((keys) => {
+                            return Promise.all(
+                                keys.map((key) => {
+                                    if (key !== CACHE_NAME) return caches.delete(key);
+                                })
+                            );
+                        }).then(() => self.clients.claim())
+                    );
+                });
+
+                self.addEventListener('fetch', (e) => {
+                    e.respondWith(
+                        caches.match(e.request).then((cachedResponse) => {
+                            if (cachedResponse) return cachedResponse;
+                            return fetch(e.request).then((networkResponse) => {
+                                if (e.request.method === 'GET' && networkResponse.status === 200) {
+                                    const responseClone = networkResponse.clone();
+                                    caches.open(CACHE_NAME).then((cache) => cache.put(e.request, responseClone));
+                                }
+                                return networkResponse;
+                            });
+                        }).catch(() => caches.match('./'))
+                    );
+                });
+            `;
+            const swBlob = new Blob([swCode], { type: 'text/javascript' });
+            const swUrl = URL.createObjectURL(swBlob);
+            navigator.serviceWorker.register(swUrl).catch(err => console.log('SW Register error:', err));
+        }
+
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwaBanner').classList.add('show');
+        });
+
+        document.getElementById('installPwaBtn').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('User installed PWA');
+                }
+                deferredPrompt = null;
+                document.getElementById('pwaBanner').classList.remove('show');
+            }
+        });
+
+        // Later (Dismiss Banner) Event Listener
+        document.getElementById('dismissPwaBtn').addEventListener('click', () => {
+            document.getElementById('pwaBanner').classList.remove('show');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            document.getElementById('pwaBanner').classList.remove('show');
+            deferredPrompt = null;
+        });
+
+        document.getElementById('loanDate').valueAsDate = new Date();
+        document.getElementById('payDate').valueAsDate = new Date();
+
+        let currentAuthMode = 'login';
+        let currentBorrower = JSON.parse(localStorage.getItem('activeBorrower')) || null;
+        let loans = [];
+        let currentOpenLoanId = null;
+        let currentAdminTab = 'users';
+
+        function getDynamicReferralBonus() {
+            let bonus = localStorage.getItem('loanBook_referralBonusSetting');
+            return bonus !== null ? parseFloat(bonus) : 50;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            applyTheme(currentTheme);
+            applyLanguage(currentLang);
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCodeFromUrl = urlParams.get('ref');
+
+            if (currentBorrower) {
+                initSession();
+            } else {
+                if (refCodeFromUrl) {
+                    switchAuthTab('register');
+                    const refInput = document.getElementById('authRefCode');
+                    refInput.value = refCodeFromUrl;
+                    refInput.disabled = true;
+                    document.getElementById('refStatusBadge').innerText = '(Applied & Locked)';
+                } else {
+                    switchAuthTab('login');
+                }
+            }
+        });
+
+        function toggleMenuDrawer() {
+            document.getElementById('sideDrawer').classList.toggle('active');
+            document.getElementById('menuOverlay').classList.toggle('active');
+        }
+
+        function switchAuthTab(mode) {
+            currentAuthMode = mode;
+            document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
+            document.getElementById('tabRegister').classList.toggle('active', mode === 'register');
+            
+            const nameGroup = document.getElementById('nameFieldGroup');
+            const nameInput = document.getElementById('authName');
+            const refGroup = document.getElementById('referralFieldGroup');
+            
+            if (mode === 'register') {
+                nameGroup.style.display = 'block';
+                nameInput.setAttribute('required', 'required');
+                refGroup.style.display = 'block';
+            } else {
+                nameGroup.style.display = 'none';
+                nameInput.removeAttribute('required');
+                refGroup.style.display = 'none';
+            }
+            
+            const btnText = mode === 'login' ? translations[currentLang].loginBtn : translations[currentLang].registerBtn;
+            document.getElementById('authSubmitBtn').innerText = btnText;
+        }
+
+        function generateUniqueRefCode() {
+            const random6Digits = Math.floor(100000 + Math.random() * 900000);
+            return 'LB' + random6Digits;
+        }
+
+        function addWalletTransaction(mobile, title, amount, type) {
+            let txs = JSON.parse(localStorage.getItem('walletTransactions_' + mobile)) || [];
+            txs.unshift({
+                id: 'TX' + Date.now(),
+                title: title,
+                amount: amount,
+                type: type,
+                date: new Date().toLocaleString('en-IN')
+            });
+            localStorage.setItem('walletTransactions_' + mobile, JSON.stringify(txs));
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const mobile = document.getElementById('authMobile').value.trim();
+            const password = document.getElementById('authPassword').value.trim();
+
+            let borrowers = JSON.parse(localStorage.getItem('borrowerUsers')) || [];
+
+            if (currentAuthMode === 'register') {
+                const name = document.getElementById('authName').value.trim();
+                const refCodeInput = document.getElementById('authRefCode').value.trim();
+
+                const exists = borrowers.find(u => u.mobile === mobile);
+                if (exists) {
+                    alert(currentLang === 'hi' ? 'मोबाइल नंबर पहले से पंजीकृत है! कृपया लॉगिन करें।' : 'Mobile Number is already registered! Please Login.');
+                    switchAuthTab('login');
+                    return;
+                }
+
+                let myRefCode = generateUniqueRefCode();
+                while (borrowers.some(u => u.refCode === myRefCode)) {
+                    myRefCode = generateUniqueRefCode();
+                }
+
+                const currentBonusAmount = getDynamicReferralBonus();
+
+                const newBorrower = {
+                    name, mobile, password,
+                    refCode: myRefCode,
+                    referredBy: refCodeInput || null,
+                    refCount: 0,
+                    refBonus: refCodeInput ? currentBonusAmount : 0,
+                    savedUpi: ''
+                };
+
+                if (refCodeInput) {
+                    addWalletTransaction(mobile, 'Sign Up Referral Bonus', currentBonusAmount, 'credit');
+                    let referrer = borrowers.find(u => u.refCode === refCodeInput);
+                    if (referrer) {
+                        referrer.refCount = (referrer.refCount || 0) + 1;
+                        referrer.refBonus = (referrer.refBonus || 0) + currentBonusAmount;
+                        addWalletTransaction(referrer.mobile, `Referral Reward (${name})`, currentBonusAmount, 'credit');
+                    }
+                }
+
+                borrowers.unshift(newBorrower);
+                localStorage.setItem('borrowerUsers', JSON.stringify(borrowers));
+
+                document.getElementById('alertMobile').innerText = mobile;
+                document.getElementById('alertPass').innerText = password;
+                document.getElementById('regAlertModal').classList.add('active');
+
+                currentBorrower = newBorrower;
+            } else {
+                const user = borrowers.find(u => u.mobile === mobile && u.password === password);
+                if (!user) {
+                    alert(currentLang === 'hi' ? 'अमान्य मोबाइल नंबर या पासवर्ड!' : 'Invalid Mobile Number or Password!');
+                    return;
+                }
+                currentBorrower = user;
+            }
+
+            localStorage.setItem('activeBorrower', JSON.stringify(currentBorrower));
+            initSession();
+        }
+
+        function logoutBorrower() {
+            localStorage.removeItem('activeBorrower');
+            currentBorrower = null;
+            loans = [];
+            document.getElementById('sideDrawer').classList.remove('active');
+            document.getElementById('menuOverlay').classList.remove('active');
+            document.getElementById('mainView').style.display = 'none';
+            document.getElementById('authScreen').style.display = 'flex';
+        }
+
+        function initSession() {
+            if (!currentBorrower) return;
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('mainView').style.display = 'block';
+
+            document.getElementById('borrowerDisplayName').innerText = currentBorrower.name;
+            document.getElementById('borrowerDisplayMobile').innerText = '+91 ' + currentBorrower.mobile;
+            document.getElementById('borrowerAvatar').innerText = currentBorrower.name.charAt(0).toUpperCase();
+
+            let borrowers = JSON.parse(localStorage.getItem('borrowerUsers')) || [];
+            let freshUser = borrowers.find(u => u.mobile === currentBorrower.mobile);
+            if (freshUser) {
+                currentBorrower = freshUser;
+                localStorage.setItem('activeBorrower', JSON.stringify(currentBorrower));
+            }
+
+            document.getElementById('headerWalletBalance').innerText = `₹${currentBorrower.refBonus || 0}`;
+
+            const dataKey = 'loanBookBorrowerData_' + currentBorrower.mobile;
+            loans = JSON.parse(localStorage.getItem(dataKey)) || [];
+
+            renderApp();
+        }
+
+        function saveLoansToStorage() {
+            if (currentBorrower) {
+                const dataKey = 'loanBookBorrowerData_' + currentBorrower.mobile;
+                localStorage.setItem(dataKey, JSON.stringify(loans));
+            }
+        }
+
+        function shareReferralLink() {
+            if (!currentBorrower) return;
+            const refCode = currentBorrower.refCode || generateUniqueRefCode();
+            const baseUrl = window.location.origin + window.location.pathname;
+            const referralLink = `${baseUrl}?ref=${refCode}`;
+            const shareText = `Join LoanBook app to manage your borrower loans easily! Use my Referral Link to Register: ${referralLink}`;
+            
+            if (navigator.share) {
+                navigator.share({ title: 'LoanBook App Referral', text: shareText, url: referralLink });
+            } else {
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`);
+            }
+        }
+
+        function openWhatsAppSupport() {
+            window.open('https://wa.me/918873903209?text=Hello%20LoanBook%20Support', '_blank');
+        }
+
+        function openReferralModal() {
+            if (!currentBorrower) return;
+            initSession();
+            document.getElementById('displayRefCode').innerText = currentBorrower.refCode || generateUniqueRefCode();
+
+            let borrowers = JSON.parse(localStorage.getItem('borrowerUsers')) || [];
+            let referredList = borrowers.filter(u => u.referredBy === currentBorrower.refCode);
+
+            document.getElementById('refCountDisplay').innerText = `${referredList.length} Users`;
+            document.getElementById('refBonusDisplay').innerText = `₹${currentBorrower.refBonus || 0}`;
+
+            const container = document.getElementById('referredUsersList');
+            container.innerHTML = '';
+
+            if (referredList.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="padding:15px;"><p style="font-size:0.85rem;">No referred members yet.</p></div>';
+            } else {
+                referredList.forEach(u => {
+                    const item = document.createElement('div');
+                    item.className = 'ref-user-item';
+                    const waMessage = encodeURIComponent(`Hello ${u.name}, welcome to LoanBook App!`);
+                    
+                    item.innerHTML = `
+                        <div>
+                            <strong style="font-size:0.9rem; color:var(--text-main); display:block;">${u.name}</strong>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">${u.mobile}</span>
+                        </div>
+                        <a href="https://wa.me/91${u.mobile}?text=${waMessage}" target="_blank" class="btn-whatsapp-icon" title="Chat on WhatsApp">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </a>
+                    `;
+                    container.appendChild(item);
+                });
+            }
+
+            document.getElementById('referralModal').classList.add('active');
+        }
+
+        function openWalletWithdrawModal() {
+            if (!currentBorrower) return;
+            initSession();
+
+            document.getElementById('modalWalletBalance').innerText = `₹${currentBorrower.refBonus || 0}`;
+            document.getElementById('withdrawAmount').value = currentBorrower.refBonus || '';
+            document.getElementById('withdrawUpi').value = currentBorrower.savedUpi || '';
+
+            document.getElementById('walletWithdrawModal').classList.add('active');
+        }
+
+        function openWalletTxModal() {
+            if (!currentBorrower) return;
+            const container = document.getElementById('walletTxList');
+            container.innerHTML = '';
+
+            let txs = JSON.parse(localStorage.getItem('walletTransactions_' + currentBorrower.mobile)) || [];
+
+            if (txs.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="padding: 30px 10px;"><p>No transactions recorded yet.</p></div>';
+            } else {
+                txs.forEach(t => {
+                    const item = document.createElement('div');
+                    item.style.cssText = "background: rgba(0,0,0,0.03); border:1px solid var(--border-color); border-radius:10px; padding:12px; display:flex; justify-content:space-between; align-items:center;";
+                    
+                    const isCredit = t.type === 'credit';
+                    const amountColor = isCredit ? 'var(--success)' : 'var(--danger)';
+                    const sign = isCredit ? '+' : '-';
+
+                    item.innerHTML = `
+                        <div>
+                            <strong style="font-size:0.85rem; color:var(--text-main); display:block;">${t.title}</strong>
+                            <span style="font-size:0.72rem; color:var(--text-muted);">${t.date}</span>
+                        </div>
+                        <span style="font-size:1rem; font-weight:800; color:${amountColor};">${sign} ₹${t.amount}</span>
+                    `;
+                    container.appendChild(item);
+                });
+            }
+
+            document.getElementById('walletTxModal').classList.add('active');
+        }
+
+        function handleWithdraw(e) {
+            e.preventDefault();
+            const upi = document.getElementById('withdrawUpi').value.trim();
+            const reqAmount = parseFloat(document.getElementById('withdrawAmount').value);
+            const currentBonus = currentBorrower.refBonus || 0;
+
+            if (!reqAmount || reqAmount <= 0) {
+                alert('Please enter a valid withdrawal amount!');
+                return;
+            }
+
+            if (reqAmount > currentBonus) {
+                alert(`Insufficient balance! Your available balance is ₹${currentBonus}`);
+                return;
+            }
+
+            currentBorrower.savedUpi = upi;
+            currentBorrower.refBonus = currentBonus - reqAmount;
+
+            localStorage.setItem('activeBorrower', JSON.stringify(currentBorrower));
+
+            let borrowers = JSON.parse(localStorage.getItem('borrowerUsers')) || [];
+            let idx = borrowers.findIndex(u => u.mobile === currentBorrower.mobile);
+            if (idx !== -1) {
+                borrowers[idx].savedUpi = upi;
+                borrowers[idx].refBonus = currentBorrower.refBonus;
+                localStorage.setItem('borrowerUsers', JSON.stringify(borrowers));
+            }
+
+            let withdrawals = JSON.parse(localStorage.getItem('loanBookWithdrawals')) || [];
+            const reqData = {
+                id: 'REQ' + Date.now(),
+                mobile: currentBorrower.mobile,
+                userName: currentBorrower.name,
+                amount: reqAmount,
+                upi: upi,
+                date: new Date().toLocaleString('en-IN'),
+                status: 'Pending',
+                remark: 'Awaiting Admin Approval'
+            };
+            withdrawals.unshift(reqData);
+            localStorage.setItem('loanBookWithdrawals', JSON.stringify(withdrawals));
+
+            addWalletTransaction(currentBorrower.mobile, `Withdrawal Request (${upi})`, reqAmount, 'debit');
+
+            alert(`Withdrawal Request of ₹${reqAmount} submitted successfully!\nUPI ID (${upi}) saved for future withdrawals.`);
+            closeModal('walletWithdrawModal');
+            initSession();
+        }
+
+        /* ---------------- ADMIN PANEL LOGIC ---------------- */
+        function openAdminAuthModal() {
+            document.getElementById('adminAuthModal').classList.add('active');
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const id = document.getElementById('adminIdInput').value.trim();
+            const pass = document.getElementById('adminPassInput').value.trim();
+
+            if (id === 'Admin' && pass === '887390') {
+                closeModal('adminAuthModal');
+                document.getElementById('adminAuthForm').reset();
+                document.getElementById('adminPage').classList.add('active');
+                renderAdminData();
+            } else {
+                alert('Invalid Admin Credentials!');
+            }
+        }
+
+        function closeAdminPage() {
+            document.getElementById('adminPage').classList.remove('active');
+            initSession();
+        }
+
+        function switchAdminTab(tab) {
+            currentAdminTab = tab;
+            document.getElementById('tabUsers').classList.toggle('active', tab === 'users');
+            document.getElementById('tabWithdrawals').classList.toggle('active', tab === 'withdrawals');
+            document.getElementById('tabSettings').classList.toggle('active', tab === 'settings');
+
+            document.getElementById('adminSearchBoxWrapper').style.display = (tab === 'settings') ? 'none' : 'block';
+            document.getElementById('adminTabUsersContent').style.display = tab === 'users' ? 'block' : 'none';
+            document.getElementById('adminTabWithdrawalsContent').style.display = tab === 'withdrawals' ? 'block' : 'none';
+            document.getElementById('adminTabSettingsContent').style.display = tab === 'settings' ? 'block' : 'none';
+            
+            renderAdminData();
+        }
+
+        function toggleBonusMobileField() {
+            const target = document.getElementById('bonusTargetSelect').value;
+            const mobileGroup = document.getElementById('bonusMobileGroup');
+            const mobileInput = document.getElementById('bonusTargetMobile');
+
+            if (target === 'single') {
+                mobileGroup.style.display = 'block';
+                mobileInput.setAttribute('required', 'required');
+            } else {
+                mobileGroup.style.display = 'none';
+                mobileInput.removeAttribute('required');
+            }
+        }
+
+        function sendCustomBonus(e) {
+            e.preventDefault();
+            const target = document.getElementById('bonusTargetSelect').value;
+            const amount = parseFloat(document.getElementById('bonusCustomAmount').value);
+            const remark = document.getElementById('bonusCustomRemark').value.trim();
+            let borrowers = JSON.parse(localStorage.getItem('borrowerUsers')) || [];
+
+            if (isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid bonus amount!');
+                return;
+            }
+
+            if (borrowers.length === 0) {
+                alert('No registered users found!');
+                return;
+            }
+
+            if (target === 'single') {
+                const targetMobile = document.getElementById('bonusTargetMobile').value.trim();
+                let userIndex = borrowers.findIndex(u => u.mobile === targetMobile);
+
+                if (userIndex === -1) {
+                    alert('User with this mobile number does not exist!');
+                    return;
+                }
+
+                borrowers[userIndex].refBonus = (borrowers[userIndex].refBonus || 0) + amount;
+                addWalletTransaction(targetMobile, `Bonus: ${remark}`, amount, 'credit');
+                localStorage.setItem('borrowerUsers', JSON.stringify(borrowers));
+                alert(`₹${amount} Bonus credited to user (${borrowers[userIndex].name}) successfully!`);
+            } else {
+                if (confirm(`Are you sure you want to send ₹${amount} bonus to ALL ${borrowers.length} users?`)) {
+                    borrowers.forEach(user => {
+                        user.refBonus = (user.refBonus || 0) + amount;
+                        addWalletTransaction(user.mobile, `Bonus: ${remark}`, amount, 'credit');
+                    });
+                    localStorage.setItem('borrowerUsers', JSON.stringify(borrowers));
+                    alert(`₹${amount} Bonus credited to all ${borrowers.length} users successfully!`);
+                } else {
+                    return;
+                }
+            }
+
+            document.getElementById('adminSendBonusForm').reset();
+            toggleBonusMobileField();
+        }
+
+        function saveAdminSettings(e) {
+            e.preventDefault();
+            const newBonus = parseFloat(document.getElementById('settingRefBonusInput').value);
+            if (isNaN(newBonus) || newBonus < 0) {
+                alert('Please enter a valid bonus amount!');
+                return;
+            }
+            localStorage.setItem('loanBook_referralBonusSetting', newBonus);
+            alert(`Referral Bonus Amount updated to ₹${newBonus} successfully!`);
+        }
+
+        function renderAdminData() {
+            if (currentAdminTab === 'settings') {
+                document.getElementById('settingRefBonusInput').value = getDynamicReferralBonus();
+                toggleBonusMobileField();
+                return;
+            }
+
+            const query = document.getElementById('adminSearchInput').value.toLowerCase().trim();
+
+            if (currentAdminTab === 'users') {
+                const usersContainer = document.getElementById('adminTabUsersContent');
+                usersContainer.innerHTML = '';
+
+                let borrowers = JSON.parse(localStorage.getItem('borrowerUsers')) || [];
+                
+                let filtered = borrowers.filter(u => 
+                    u.name.toLowerCase().includes(query) || u.mobile.includes(query)
+                );
+
+                if (filtered.length === 0) {
+                    usersContainer.innerHTML = '<div class="empty-state"><p>No users found matching search.</p></div>';
+                    return;
+                }
+
+                filtered.forEach(u => {
+                    const card = document.createElement('div');
+                    card.className = 'admin-card';
+                    card.innerHTML = `
+                        <div class="admin-card-header">
+                            <div>
+                                <strong style="font-size:1rem; color:var(--text-main);">${u.name}</strong>
+                                <div style="font-size:0.78rem; color:var(--text-muted);">${u.mobile}</div>
+                            </div>
+                            <button class="btn-pay" style="padding:6px 12px; font-size:0.75rem;" onclick="openAdminEditUserModal('${u.mobile}')"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                        </div>
+                        <div class="details-grid" style="margin-bottom:0;">
+                            <div class="detail-item"><span class="label">Password</span><span class="value" style="color:var(--primary)">${u.password}</span></div>
+                            <div class="detail-item"><span class="label">Ref Code</span><span class="value" style="color:var(--warning)">${u.refCode}</span></div>
+                            <div class="detail-item"><span class="label">Wallet Balance</span><span class="value" style="color:var(--success)">₹${u.refBonus || 0}</span></div>
+                            <div class="detail-item"><span class="label">Total Referred</span><span class="value">${u.refCount || 0} Users</span></div>
+                        </div>
+                    `;
+                    usersContainer.appendChild(card);
+                });
+            } else if (currentAdminTab === 'withdrawals') {
+                const reqContainer = document.getElementById('adminTabWithdrawalsContent');
+                reqContainer.innerHTML = '';
+
+                let withdrawals = JSON.parse(localStorage.getItem('loanBookWithdrawals')) || [];
+
+                let filtered = withdrawals.filter(w => 
+                    w.userName.toLowerCase().includes(query) || w.mobile.includes(query) || w.upi.toLowerCase().includes(query)
+                );
+
+                if (filtered.length === 0) {
+                    reqContainer.innerHTML = '<div class="empty-state"><p>No withdrawal requests found.</p></div>';
+                    return;
+                }
+
+                filtered.forEach(w => {
+                    let badgeClass = 'badge-pending';
+                    if (w.status === 'Successful') badgeClass = 'badge-success';
+                    if (w.status === 'Rejected') badgeClass = 'badge-danger';
+
+                    const card = document.createElement('div');
+                    card.className = 'admin-card';
+                    card.innerHTML = `
+                        <div class="admin-card-header">
+                            <div>
+                                <strong style="font-size:1rem; color:var(--text-main);">${w.userName}</strong>
+                                <div style="font-size:0.75rem; color:var(--text-muted);">${w.mobile} • ${w.date}</div>
+                            </div>
+                            <span class="badge ${badgeClass}">${w.status}</span>
+                        </div>
+                        <div class="details-grid">
+                            <div class="detail-item"><span class="label">Requested Amount</span><span class="value" style="color:var(--warning); font-size:1.1rem;">₹${w.amount}</span></div>
+                            <div class="detail-item"><span class="label">UPI ID</span><span class="value" style="color:var(--primary)">${w.upi}</span></div>
+                        </div>
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">
+                            <strong>Remark:</strong> ${w.remark || 'N/A'}
+                        </div>
+                        ${w.status === 'Pending' ? `
+                            <button class="submit-btn" style="background:var(--primary); padding:10px; font-size:0.85rem;" onclick="openAdminProcessModal('${w.id}')"><i class="fa-solid fa-gears"></i> Process Request</button>
+                        ` : ''}
+                    `;
+                    reqContainer.appendChild(card);
+                });
+            }
+        }
+
+        function openAdminEditUserModal(mobile) {
+            let borrowers = JSON.parse(localStorage.getItem('borrowerUsers')) || [];
+            let user = borrowers.find(u => u.mobile === mobile);
+            if (!user) return;
+
+            document.getElementById('editUserMobileKey').value = user.mobile;
+            document.getElementById('editUserName').value = user.name;
+            document.getElementById('editUserMobile').value = user.mobile;
+            document.getElementById('editUserPassword').value = user.password;
+            document.getElementById('editUserRefCode').value = user.refCode;
+            document.getElementById('editUserBonus').value = user.refBonus || 0;
+
+            document.getElementById('adminEditUserModal').classList.add('active');
+        }
+
+        function saveAdminEditUser(e) {
+            e.preventDefault();
+            const mobile = document.getElementById('editUserMobileKey').value;
+            let borrowers = JSON.parse(localStorage.getItem('borrowerUsers')) || [];
+
+            let idx = borrowers.findIndex(u => u.mobile === mobile);
+            if (idx !== -1) {
+                const oldBonus = borrowers[idx].refBonus || 0;
+                const newBonus = parseFloat(document.getElementById('editUserBonus').value) || 0;
+
+                borrowers[idx].name = document.getElementById('editUserName').value.trim();
+                borrowers[idx].password = document.getElementById('editUserPassword').value.trim();
+                borrowers[idx].refCode = document.getElementById('editUserRefCode').value.trim();
+                borrowers[idx].refBonus = newBonus;
+
+                if (newBonus !== oldBonus) {
+                    const diff = newBonus - oldBonus;
+                    addWalletTransaction(mobile, 'Admin Balance Update', Math.abs(diff), diff > 0 ? 'credit' : 'debit');
+                }
+
+                localStorage.setItem('borrowerUsers', JSON.stringify(borrowers));
+                closeModal('adminEditUserModal');
+                renderAdminData();
+            }
+        }
+
+        function openAdminProcessModal(reqId) {
+            document.getElementById('processReqId').value = reqId;
+            document.getElementById('adminProcessModal').classList.add('active');
+        }
+
+        function saveWithdrawalStatus(e) {
+            e.preventDefault();
+            const reqId = document.getElementById('processReqId').value;
+            const newStatus = document.getElementById('processStatus').value;
+            const remark = document.getElementById('processRemark').value.trim();
+
+            let withdrawals = JSON.parse(localStorage.getItem('loanBookWithdrawals')) || [];
+            let reqIdx = withdrawals.findIndex(w => w.id === reqId);
+
+            if (reqIdx !== -1) {
+                withdrawals[reqIdx].status = newStatus;
+                withdrawals[reqIdx].remark = remark || (newStatus === 'Successful' ? 'Approved by Admin' : 'Rejected by Admin');
+
+                if (newStatus === 'Rejected') {
+                    let borrowers = JSON.parse(localStorage.getItem('borrowerUsers')) || [];
+                    let uIdx = borrowers.findIndex(u => u.mobile === withdrawals[reqIdx].mobile);
+                    if (uIdx !== -1) {
+                        borrowers[uIdx].refBonus = (borrowers[uIdx].refBonus || 0) + withdrawals[reqIdx].amount;
+                        localStorage.setItem('borrowerUsers', JSON.stringify(borrowers));
+                        
+                        addWalletTransaction(withdrawals[reqIdx].mobile, 'Withdrawal Rejected (Refund)', withdrawals[reqIdx].amount, 'credit');
+                    }
+                }
+
+                localStorage.setItem('loanBookWithdrawals', JSON.stringify(withdrawals));
+                closeModal('adminProcessModal');
+                document.getElementById('adminProcessForm').reset();
+                renderAdminData();
+            }
+        }
+
+        /* ---------------- LOAN & MATH CALCULATIONS ---------------- */
+        function calculateLoanMath(loan) {
+            let principal = parseFloat(loan.amount) || 0;
+            let rate = parseFloat(loan.rate) || 0;
+            let startDate = new Date(loan.startDate);
+            let today = new Date();
+
+            startDate.setHours(0, 0, 0, 0); today.setHours(0, 0, 0, 0);
+
+            let totalDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+            if (totalDays < 0) totalDays = 0;
+            
+            let totalMonths = totalDays / 30; 
+            let monthlyInterest = principal * (rate / 100);
+            let accumulatedInterest = monthlyInterest * totalMonths;
+
+            let totalPaid = 0;
+            if (loan.payments && loan.payments.length > 0) {
+                totalPaid = loan.payments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+            }
+
+            let totalAmountGross = principal + accumulatedInterest;
+            let totalOutstanding = totalAmountGross - totalPaid;
+
+            return {
+                currentPrincipal: principal,
+                accumulatedInterest: Math.max(0, accumulatedInterest),
+                totalAmountGross: Math.max(0, totalAmountGross),
+                totalOutstanding: Math.max(0, totalOutstanding),
+                totalPaid: totalPaid,
+                monthlyInterest: monthlyInterest
+            };
+        }
+
+        function renderApp() {
+            const listDiv = document.getElementById('loanList');
+            listDiv.innerHTML = '';
+
+            let grandTotalOutstanding = 0;
+            let grandTotalPaid = 0;
+
+            if (loans.length === 0) {
+                listDiv.innerHTML = `<div class="empty-state"><i class="fa-solid fa-folder-open fa-3x" style="margin-bottom:15px; opacity:0.3;"></i><p>${currentLang === 'hi' ? 'कोई ऋणदाता नहीं जोड़ा गया। नया विवरण जोड़ने के लिए + पर क्लिक करें।' : 'No lenders added yet. Click + to add loan details.'}</p></div>`;
+            }
+
+            loans.forEach(loan => {
+                const math = calculateLoanMath(loan);
+                grandTotalOutstanding += math.totalOutstanding;
+                grandTotalPaid += math.totalPaid;
+
+                const item = document.createElement('div');
+                item.className = 'loan-list-item';
+                item.onclick = () => openDetailPage(loan.id);
+                item.innerHTML = `
+                    <div class="item-main-info">
+                        <div class="item-name">${loan.name}</div>
+                        <div class="item-principal">${translations[currentLang].borrowedTxt}: ₹${parseFloat(loan.amount).toLocaleString('en-IN')}</div>
+                    </div>
+                    <div class="due-amount-container">
+                        <span class="due-label">${translations[currentLang].dueAmountTxt}</span>
+                        <span class="due-val">₹${math.totalOutstanding.toFixed(0)}</span>
+                    </div>
+                `;
+                listDiv.appendChild(item);
+            });
+
+            document.getElementById('totalOutstandingDisplay').innerText = '₹' + grandTotalOutstanding.toFixed(0);
+            document.getElementById('totalPaidDisplay').innerText = '₹' + grandTotalPaid.toFixed(0);
+
+            if (currentOpenLoanId) renderDetailPageContent(currentOpenLoanId);
+        }
+
+        function openDetailPage(loanId) {
+            currentOpenLoanId = loanId;
+            renderDetailPageContent(loanId);
+            window.history.pushState({ page: 'detail' }, 'Lender Details');
+            document.getElementById('detailPage').classList.add('active');
+        }
+
+        function renderDetailPageContent(loanId) {
+            const loan = loans.find(l => l.id === loanId);
+            if (!loan) return;
+
+            const math = calculateLoanMath(loan);
+
+            document.getElementById('detailHeaderTitle').innerText = loan.name;
+            document.getElementById('detailHeaderSub').innerText = `Taken on ${new Date(loan.startDate).toLocaleDateString('en-IN')}`;
+
+            const container = document.getElementById('detailPageContent');
+            container.innerHTML = `
+                <div class="loan-card">
+                    <div class="loan-card-header">
+                        <div class="time-badge"><i class="fa-regular fa-clock"></i> Active Record</div>
+                        <button class="btn-delete" onclick="deleteLoan('${loan.id}')"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+
+                    <div class="details-grid">
+                        <div class="detail-item"><span class="label">Principal Amount</span><span class="value">₹${parseFloat(loan.amount).toLocaleString('en-IN')}</span></div>
+                        <div class="detail-item"><span class="label">Monthly Rate</span><span class="value">${loan.rate}% (₹${math.monthlyInterest.toFixed(0)}/m)</span></div>
+                        <div class="detail-item"><span class="label">Total Interest</span><span class="value" style="color:var(--warning)">₹${math.accumulatedInterest.toFixed(0)}</span></div>
+                        <div class="detail-item"><span class="label">Total Paid Back</span><span class="value" style="color:var(--success)">₹${math.totalPaid.toLocaleString('en-IN')}</span></div>
+                    </div>
+
+                    <div class="outstanding-box">
+                        <span class="label" style="color:#fca5a5;">Remaining Balance Due</span>
+                        <span class="value" style="color:var(--danger); font-size:1.3rem; font-weight:800;">₹${math.totalOutstanding.toFixed(0)}</span>
+                    </div>
+
+                    <div class="action-row">
+                        <button class="btn-pay" onclick="openPaymentModal('${loan.id}')"><i class="fa-solid fa-plus-circle"></i> Record Payment</button>
+                        <button class="btn-history" onclick="openHistoryPage('${loan.id}')">History (${loan.payments ? loan.payments.length : 0})</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openHistoryPage(loanId) {
+            const loan = loans.find(l => l.id === loanId);
+            if (!loan) return;
+
+            document.getElementById('historyHeaderTitle').innerText = `${loan.name}'s History`;
+            const container = document.getElementById('historyPageContent');
+            container.innerHTML = '';
+
+            if (!loan.payments || loan.payments.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-receipt fa-3x" style="margin-bottom:15px; opacity:0.3;"></i><p>No repayment records found.</p></div>';
+            } else {
+                loan.payments.slice().reverse().forEach(p => {
+                    const item = document.createElement('div');
+                    item.className = 'loan-list-item';
+                    item.innerHTML = `
+                        <div>
+                            <div style="font-size:0.8rem; color:var(--text-muted);">${new Date(p.date).toLocaleDateString('en-IN')}</div>
+                            <div style="font-size:0.85rem; font-weight:500;">${p.remark ? p.remark : 'Payment Paid'}</div>
+                        </div>
+                        <span style="color:var(--success); font-weight:800; font-size:1.1rem;">- ₹${parseFloat(p.amount).toLocaleString('en-IN')}</span>
+                    `;
+                    container.appendChild(item);
+                });
+            }
+
+            window.history.pushState({ page: 'history' }, 'History');
+            document.getElementById('historyPage').classList.add('active');
+        }
+
+        function goBack() {
+            document.getElementById('historyPage').classList.remove('active');
+            document.getElementById('detailPage').classList.remove('active');
+            currentOpenLoanId = null;
+        }
+
+        function saveLoan(e) {
+            e.preventDefault();
+            const newLoan = {
+                id: Date.now().toString(),
+                name: document.getElementById('loanName').value,
+                amount: document.getElementById('loanAmount').value,
+                rate: document.getElementById('loanRate').value,
+                startDate: document.getElementById('loanDate').value,
+                payments: []
+            };
+            loans.unshift(newLoan);
+            saveLoansToStorage(); closeModal('loanModal');
+            document.getElementById('loanForm').reset();
+            document.getElementById('loanDate').valueAsDate = new Date();
+            renderApp();
+        }
+
+        function deleteLoan(loanId) {
+            const msg = currentLang === 'hi' ? 'क्या आप इस ऋणदाता एंट्री को हटाना चाहते हैं?' : 'Kya aap is lender entry ko delete karna chahte hain?';
+            if (confirm(msg)) {
+                loans = loans.filter(l => l.id !== loanId);
+                saveLoansToStorage(); goBack(); renderApp();
+            }
+        }
+
+        function savePayment(e) {
+            e.preventDefault();
+            const loanId = document.getElementById('payLoanId').value;
+            const amount = document.getElementById('payAmount').value;
+            const date = document.getElementById('payDate').value;
+            const remark = document.getElementById('payRemark').value;
+
+            const idx = loans.findIndex(l => l.id === loanId);
+            if (idx !== -1) {
+                loans[idx].payments.push({ amount, date, remark });
+                saveLoansToStorage(); closeModal('paymentModal');
+                document.getElementById('paymentForm').reset();
+                document.getElementById('payDate').valueAsDate = new Date();
+                renderApp();
+            }
+        }
+
+        function openLoanModal() { document.getElementById('loanModal').classList.add('active'); }
+        function openPaymentModal(loanId) { document.getElementById('payLoanId').value = loanId; document.getElementById('paymentModal').classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    </script>
+</body>
+</html>
