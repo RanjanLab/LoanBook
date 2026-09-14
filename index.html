@@ -45,6 +45,44 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; transition: background-color 0.2s ease, color 0.2s ease; }
         body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 90px; }
 
+        /* 2.5s Splash Screen Styles */
+        .splash-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        .splash-screen.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .splash-logo-container {
+            width: 100px;
+            height: 100px;
+            animation: splashPulse 1.5s infinite ease-in-out;
+            margin-bottom: 16px;
+        }
+        .splash-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: 1px;
+        }
+        .splash-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+        @keyframes splashPulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.4)); }
+            50% { transform: scale(1.08); filter: drop-shadow(0 0 25px rgba(59, 130, 246, 0.8)); }
+        }
+
         /* Auth Screen */
         .auth-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -288,6 +326,28 @@
     </style>
 </head>
 <body>
+
+    <!-- 2.5s Logo Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-logo-container">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%;">
+                <rect x="18" y="10" width="68" height="80" rx="10" fill="url(#splash_blue_grad)" stroke="#ffffff" stroke-width="2.5"/>
+                <path d="M12 24H22M12 40H22M12 56H22M12 72H22" stroke="#e2e8f0" stroke-width="4.5" stroke-linecap="round"/>
+                <rect x="30" y="24" width="44" height="6" rx="3" fill="#ffffff" opacity="0.9"/>
+                <rect x="30" y="38" width="34" height="6" rx="3" fill="#ffffff" opacity="0.7"/>
+                <rect x="30" y="52" width="40" height="6" rx="3" fill="#ffffff" opacity="0.7"/>
+                <path d="M58 72L64 78L78 64" stroke="#10b981" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                <defs>
+                    <linearGradient id="splash_blue_grad" x1="18" y1="10" x2="86" y2="90" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#3b82f6"/>
+                        <stop offset="1" stop-color="#1d4ed8"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+        <div class="splash-title">LoanBook</div>
+        <div class="splash-subtitle" data-i18n="appSubTitle">Personal Borrower Loan Ledger</div>
+    </div>
 
     <!-- Auth Screen -->
     <div class="auth-screen" id="authScreen">
@@ -794,6 +854,19 @@
     </div>
 
     <script>
+        // 2.5 Seconds Splash Screen Timer Logic
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splashScreen');
+                if (splash) {
+                    splash.classList.add('fade-out');
+                    setTimeout(() => {
+                        splash.style.display = 'none';
+                    }, 500);
+                }
+            }, 2500); // 2.5 Seconds Splash Screen Duration
+        });
+
         // Translations Data dictionary
         const translations = {
             en: {
