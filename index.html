@@ -1066,11 +1066,25 @@
             navigator.serviceWorker.register(swUrl).catch(err => console.log('SW Register error:', err));
         }
 
+        // PWA Installation & Automatic Hide Logic if Installed
         let deferredPrompt = null;
+        
+        function isAppInstalled() {
+            const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || 
+                                     window.navigator.standalone || 
+                                     document.referrer.includes('android-app://');
+            const isMarkedInstalled = localStorage.getItem('loanbook_pwa_installed') === 'true';
+            return isStandaloneMode || isMarkedInstalled;
+        }
+
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            document.getElementById('pwaBanner').classList.add('show');
+            
+            // Show banner only if app is NOT installed
+            if (!isAppInstalled()) {
+                document.getElementById('pwaBanner').classList.add('show');
+            }
         });
 
         document.getElementById('installPwaBtn').addEventListener('click', async () => {
@@ -1079,6 +1093,7 @@
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') {
                     console.log('User installed PWA');
+                    localStorage.setItem('loanbook_pwa_installed', 'true');
                 }
                 deferredPrompt = null;
                 document.getElementById('pwaBanner').classList.remove('show');
@@ -1091,9 +1106,16 @@
         });
 
         window.addEventListener('appinstalled', () => {
+            localStorage.setItem('loanbook_pwa_installed', 'true');
             document.getElementById('pwaBanner').classList.remove('show');
             deferredPrompt = null;
         });
+
+        // Check on load if app is opened as standalone/installed
+        if (isAppInstalled()) {
+            const pwaBanner = document.getElementById('pwaBanner');
+            if (pwaBanner) pwaBanner.classList.remove('show');
+        }
 
         document.getElementById('loanDate').valueAsDate = new Date();
         document.getElementById('payDate').valueAsDate = new Date();
