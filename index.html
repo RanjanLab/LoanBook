@@ -1293,16 +1293,29 @@
             renderApp();
         }
 
+        // FIXED & ATTRACTIVE REFERRAL SHARE FUNCTION
         function shareReferralLink() {
             if (!currentBorrower) return;
             const refCode = currentBorrower.refCode || generateUniqueRefCode();
             const referralLink = `${window.location.origin}${window.location.pathname}?ref=${refCode}`;
-            const shareText = `Join LoanBook app to manage your borrower loans easily! Use my Referral Link to Register: ${referralLink}`;
+            
+            const shareTitle = "🎁 Claim Instant Cash Reward on LoanBook!";
+            
+            const shareText = `🔥 *LoanBook App - Apne Sare Karze (Loans) Asani Se Manager Kare!* 📊\n\n` +
+                              `✅ *Braj/Interest Hissab:* Live & Instant Calculate karein!\n` +
+                              `💸 *Cash Reward:* Apne dosto ko refer karke direct *CASH REWARD* kamayein aur bank account me withdraw karein!\n` +
+                              `📉 *Loan Mukti:* Sahi hissab rakhein aur apna karza jald se jald khatam karein!\n\n` +
+                              `👇 Niche diye gaye link par click karke abhi Register Karein:\n${referralLink}`;
             
             if (navigator.share) {
-                navigator.share({ title: 'LoanBook App Referral', text: shareText, url: referralLink });
+                // To avoid duplicate link rendering on Native Web Share API,
+                // text contains the full formatted message and url parameter is omitted.
+                navigator.share({
+                    title: shareTitle,
+                    text: shareText
+                }).catch(() => {});
             } else {
-                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`);
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
             }
         }
 
