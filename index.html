@@ -10,7 +10,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* Default Dark Theme Variables */
         :root {
             --bg-color: #0b0f19;
             --card-bg: #151e2e;
@@ -26,7 +25,6 @@
             --drawer-bg: #151e2e;
         }
 
-        /* Light Theme Overrides */
         body.light-theme {
             --bg-color: #f1f5f9;
             --card-bg: #ffffff;
@@ -45,45 +43,90 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; transition: background-color 0.2s ease, color 0.2s ease; }
         body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 90px; }
 
-        /* 2.5s Splash Screen Styles */
-        .splash-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-color);
-            z-index: 9999;
+        /* Custom Date Picker Input Trigger Styling */
+        .custom-date-trigger {
+            width: 100%;
+            padding: 12px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-main);
+            font-size: 0.95rem;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
+            cursor: pointer;
+        }
+
+        /* Custom Date Picker Modal Styling */
+        .picker-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            text-align: center;
+            margin-top: 12px;
+        }
+        .picker-day-head {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            padding-bottom: 6px;
+        }
+        .picker-day-cell {
+            padding: 10px 0;
+            font-size: 0.88rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            color: var(--text-main);
+        }
+        .picker-day-cell:hover {
+            background: rgba(59, 130, 246, 0.15);
+        }
+        .picker-day-cell.selected {
+            background: var(--primary) !important;
+            color: white !important;
+            font-weight: 800;
+        }
+        .picker-day-cell.empty {
+            pointer-events: none;
+            opacity: 0;
+        }
+        .picker-header-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .picker-nav-btn {
+            background: rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color); z-index: 9999; display: flex;
+            flex-direction: column; justify-content: center; align-items: center;
             transition: opacity 0.5s ease, visibility 0.5s ease;
         }
-        .splash-screen.fade-out {
-            opacity: 0;
-            visibility: hidden;
-        }
-        .splash-logo-container {
-            width: 100px;
-            height: 100px;
-            animation: splashPulse 1.5s infinite ease-in-out;
-            margin-bottom: 16px;
-        }
-        .splash-title {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--text-main);
-            letter-spacing: 1px;
-        }
-        .splash-subtitle {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 6px;
-        }
+        .splash-screen.fade-out { opacity: 0; visibility: hidden; }
+        .splash-logo-container { width: 100px; height: 100px; animation: splashPulse 1.5s infinite ease-in-out; margin-bottom: 16px; }
+        .splash-title { font-size: 1.8rem; font-weight: 800; color: var(--text-main); letter-spacing: 1px; }
+        .splash-subtitle { font-size: 0.85rem; color: var(--text-muted); margin-top: 6px; }
         @keyframes splashPulse {
             0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.4)); }
             50% { transform: scale(1.08); filter: drop-shadow(0 0 25px rgba(59, 130, 246, 0.8)); }
         }
 
-        /* Auth Screen */
         .auth-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-color); z-index: 2000;
@@ -95,16 +138,13 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
         .auth-header { text-align: center; margin-bottom: 20px; }
-        .auth-header .notebook-icon-header {
-            width: 64px; height: 64px; margin: 0 auto 10px auto; display: block;
-        }
+        .auth-header .notebook-icon-header { width: 64px; height: 64px; margin: 0 auto 10px auto; display: block; }
         .auth-header h2 { font-size: 1.5rem; font-weight: 800; color: var(--text-main); }
         .auth-header p { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
         .auth-tabs { display: flex; background: rgba(0,0,0,0.08); border-radius: 10px; padding: 4px; margin-bottom: 16px; }
         .auth-tab { flex: 1; padding: 10px; text-align: center; font-size: 0.85rem; font-weight: 700; cursor: pointer; border-radius: 8px; color: var(--text-muted); }
         .auth-tab.active { background: var(--primary); color: white; }
 
-        /* Sticky Header */
         header {
             position: sticky; top: 0; background: var(--header-bg);
             backdrop-filter: blur(10px); padding: 12px 20px;
@@ -116,50 +156,32 @@
             width: 42px; height: 42px; border-radius: 50%;
             background: linear-gradient(135deg, var(--primary), #1d4ed8); color: white;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 1.1rem; border: 2px solid rgba(255, 255, 255, 0.15);
-            flex-shrink: 0;
+            font-weight: 700; font-size: 1.1rem; border: 2px solid rgba(255, 255, 255, 0.15); flex-shrink: 0;
         }
         .user-info { display: flex; flex-direction: column; }
         .user-name { font-size: 0.95rem; font-weight: 700; color: var(--text-main); line-height: 1.2; }
         .user-phone { font-size: 0.75rem; color: var(--text-muted); margin-top: 1px; }
         .header-right { display: flex; align-items: center; gap: 8px; }
         .btn-header-icon { background: rgba(0, 0, 0, 0.05); border: 1px solid var(--border-color); color: var(--primary); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: pointer; }
-        
-        /* Wallet Pill Button */
         .btn-wallet-pill { 
             color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.4); 
             background: rgba(245, 158, 11, 0.12); padding: 6px 12px; border-radius: 20px;
             display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.85rem; cursor: pointer; 
         }
 
-        /* Offcanvas Side Menu Drawer */
-        .side-menu-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
-            z-index: 1200; opacity: 0; pointer-events: none; transition: 0.3s ease;
-        }
+        .side-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1200; opacity: 0; pointer-events: none; transition: 0.3s ease; }
         .side-menu-overlay.active { opacity: 1; pointer-events: all; }
-        .side-drawer {
-            position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
-            background: var(--drawer-bg); border-right: 1px solid var(--border-color);
-            z-index: 1300; transition: left 0.3s ease; display: flex; flex-direction: column;
-            padding: 20px; overflow-y: auto;
-        }
+        .side-drawer { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--drawer-bg); border-right: 1px solid var(--border-color); z-index: 1300; transition: left 0.3s ease; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; }
         .side-drawer.active { left: 0; }
         .drawer-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 15px; }
         .drawer-title { font-weight: 800; font-size: 1.2rem; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
         .drawer-title .notebook-drawer-icon { width: 26px; height: 26px; }
         .btn-close-drawer { background: rgba(0, 0, 0, 0.08); border: none; color: var(--text-main); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .drawer-menu-list { list-style: none; display: flex; flex-direction: column; gap: 10px; height: 100%; }
-        .drawer-menu-item {
-            padding: 12px 14px; border-radius: 12px; background: rgba(0, 0, 0, 0.03);
-            display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 0.9rem;
-            color: var(--text-main); cursor: pointer; border: 1px solid transparent;
-        }
+        .drawer-menu-item { padding: 12px 14px; border-radius: 12px; background: rgba(0, 0, 0, 0.03); display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 0.9rem; color: var(--text-main); cursor: pointer; border: 1px solid transparent; }
         .drawer-menu-item:hover, .drawer-menu-item:active { background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.3); }
         .drawer-menu-item i { width: 20px; font-size: 1rem; }
 
-        /* Dashboard Elements */
         .page-title-banner { padding: 14px 20px 4px 20px; }
         .page-title-banner h2 { font-size: 1.3rem; font-weight: 800; color: var(--primary); }
         .summary-container { padding: 12px 20px 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -176,7 +198,6 @@
         .due-label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; }
         .due-val { font-size: 1.1rem; font-weight: 800; color: var(--danger); }
 
-        /* Full Screen Views */
         .page-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 500; display: none; flex-direction: column; overflow-y: auto; }
         .page-view.active { display: flex; }
         .page-header { position: sticky; top: 0; background: var(--header-bg); backdrop-filter: blur(10px); padding: 16px 20px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); z-index: 10; }
@@ -198,7 +219,6 @@
 
         .fab { position: fixed; bottom: 25px; right: 25px; width: 58px; height: 58px; background: var(--primary); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 22px; box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5); cursor: pointer; z-index: 100; border: none; }
 
-        /* Admin Styles */
         .admin-nav-tabs { display: flex; gap: 8px; padding: 14px 20px 0 20px; }
         .admin-nav-tab { flex: 1; padding: 10px 4px; text-align: center; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); cursor: pointer; }
         .admin-nav-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
@@ -213,7 +233,6 @@
         .badge-success { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.4); }
         .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
 
-        /* Modals & Alerts */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(6px); display: flex; justify-content: center; align-items: center; z-index: 1500; opacity: 0; pointer-events: none; transition: 0.25s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: all; }
         .modal-content { background: var(--card-bg); width: 90%; max-width: 400px; border-radius: 20px; padding: 24px; border: 1px solid var(--border-color); max-height: 90vh; overflow-y: auto; color: var(--text-main); }
@@ -229,105 +248,76 @@
         .referral-box { background: rgba(0, 0, 0, 0.05); border: 1px dashed var(--primary); padding: 12px; border-radius: 10px; text-align: center; margin-bottom: 16px; position: relative;}
         .referral-code-txt { font-size: 1.3rem; font-weight: 800; color: var(--primary); letter-spacing: 2px; }
 
-        .ref-user-item {
-            background: rgba(0,0,0,0.03); border: 1px solid var(--border-color);
-            border-radius: 10px; padding: 10px 12px; display: flex;
-            justify-content: space-between; align-items: center; margin-bottom: 8px;
-        }
-        .btn-whatsapp-icon {
-            background: rgba(16, 185, 129, 0.15); color: var(--success);
-            border: 1px solid rgba(16, 185, 129, 0.3); width: 34px; height: 34px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; text-decoration: none;
-        }
+        .ref-user-item { background: rgba(0,0,0,0.03); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .btn-whatsapp-icon { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; text-decoration: none; }
 
-        /* PWA Install Banner */
-        .pwa-install-banner { 
-            position: fixed; 
-            bottom: -150px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            width: calc(100% - 30px); 
-            max-width: 440px; 
-            background: linear-gradient(135deg, rgba(21, 30, 46, 0.96), rgba(15, 23, 42, 0.98)); 
-            border: 1.5px solid rgba(59, 130, 246, 0.5); 
-            border-radius: 16px; 
-            padding: 14px 16px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            z-index: 1500; 
-            transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 15px rgba(59, 130, 246, 0.25); 
-            backdrop-filter: blur(12px);
-        }
-        .pwa-install-banner.show { 
-            bottom: 20px; 
-        }
-
-        .pwa-icon-box {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--primary), #1d4ed8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-            flex-shrink: 0;
-            animation: pulseGlow 2s infinite ease-in-out;
-            padding: 6px;
-        }
+        .pwa-install-banner { position: fixed; bottom: -150px; left: 50%; transform: translateX(-50%); width: calc(100% - 30px); max-width: 440px; background: linear-gradient(135deg, rgba(21, 30, 46, 0.96), rgba(15, 23, 42, 0.98)); border: 1.5px solid rgba(59, 130, 246, 0.5); border-radius: 16px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 1500; transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 15px rgba(59, 130, 246, 0.25); backdrop-filter: blur(12px); }
+        .pwa-install-banner.show { bottom: 20px; }
+        .pwa-icon-box { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, var(--primary), #1d4ed8); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); flex-shrink: 0; animation: pulseGlow 2s infinite ease-in-out; padding: 6px; }
 
         @keyframes pulseGlow {
             0%, 100% { transform: scale(1); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
             50% { transform: scale(1.05); box-shadow: 0 4px 20px rgba(59, 130, 246, 0.7); }
         }
 
-        .pwa-banner-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-pwa-later {
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--text-muted);
-            border: 1px solid var(--border-color);
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 0.82rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .btn-pwa-later:active {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .btn-pwa-install {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            cursor: pointer;
-            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-        }
-        .btn-pwa-install:active {
-            transform: scale(0.96);
-        }
+        .pwa-banner-actions { display: flex; align-items: center; gap: 8px; }
+        .btn-pwa-later { background: rgba(255, 255, 255, 0.08); color: var(--text-muted); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+        .btn-pwa-install { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4); display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; }
+        
+        .global-loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 15, 25, 0.6); backdrop-filter: blur(4px); z-index: 9000; display: none; justify-content: center; align-items: center; flex-direction: column; color: white; font-weight: 700; }
+        .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <!-- 2.5s Logo Splash Screen -->
+    <!-- Global API Loader -->
+    <div class="global-loader" id="globalLoader">
+        <div class="spinner"></div>
+        <span id="loaderText">Syncing Data...</span>
+    </div>
+
+    <!-- Custom Alert & Confirm Popup Modal -->
+    <div class="modal-overlay" id="customAlertModal" style="z-index: 9990;">
+        <div class="modal-content" style="text-align: center; max-width: 340px;">
+            <div id="alertIconBox" style="font-size: 2.8rem; margin-bottom: 12px; color: var(--primary);">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+            <h3 id="alertTitle" style="font-size: 1.2rem; margin-bottom: 8px; font-weight: 800; color: var(--text-main);">Notice</h3>
+            <p id="alertMessage" style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.4;"></p>
+            <div id="alertBtnRow" style="display: flex; gap: 10px; justify-content: center;">
+                <button id="alertCancelBtn" class="submit-btn" style="background: rgba(0,0,0,0.1); color: var(--text-main); border: 1px solid var(--border-color); margin-top:0; display: none;">Cancel</button>
+                <button id="alertConfirmBtn" class="submit-btn" style="background: var(--primary); margin-top:0;">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Date Picker Modal -->
+    <div class="modal-overlay" id="customDatePickerModal" style="z-index: 3000;">
+        <div class="modal-content" style="max-width: 340px;">
+            <div class="modal-header" style="margin-bottom: 10px;">
+                <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--primary);">Select Date</h3>
+                <button class="close-btn" onclick="closeModal('customDatePickerModal')">&times;</button>
+            </div>
+            
+            <div class="picker-header-nav">
+                <button class="picker-nav-btn" onclick="changePickerMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                <span id="pickerMonthYearLabel" style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Month Year</span>
+                <button class="picker-nav-btn" onclick="changePickerMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+
+            <div class="picker-calendar-grid">
+                <div class="picker-day-head">Su</div><div class="picker-day-head">Mo</div><div class="picker-day-head">Tu</div>
+                <div class="picker-day-head">We</div><div class="picker-day-head">Th</div><div class="picker-day-head">Fr</div>
+                <div class="picker-day-head">Sa</div>
+            </div>
+            <div class="picker-calendar-grid" id="pickerDaysGrid"></div>
+
+            <button class="submit-btn" style="background: var(--primary); margin-top: 16px;" onclick="confirmSelectedDate()">Confirm Date</button>
+        </div>
+    </div>
+
+    <!-- Splash Screen -->
     <div class="splash-screen" id="splashScreen">
         <div class="splash-logo-container">
             <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%;">
@@ -353,7 +343,6 @@
     <div class="auth-screen" id="authScreen">
         <div class="auth-card">
             <div class="auth-header">
-                <!-- Notebook SVG Icon -->
                 <svg class="notebook-icon-header" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="18" y="10" width="68" height="80" rx="10" fill="url(#blue_grad)" stroke="#ffffff" stroke-width="2.5"/>
                     <path d="M12 24H22M12 40H22M12 56H22M12 72H22" stroke="#e2e8f0" stroke-width="4.5" stroke-linecap="round"/>
@@ -459,18 +448,14 @@
             <button class="btn-close-drawer" onclick="toggleMenuDrawer()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <ul class="drawer-menu-list">
-            <!-- Theme Toggle Option -->
             <li class="drawer-menu-item" onclick="toggleTheme()">
                 <i class="fa-solid fa-circle-half-stroke" style="color: #38bdf8"></i>
                 <span id="themeToggleText">Light Mode</span>
             </li>
-            
-            <!-- Language Switcher Option -->
             <li class="drawer-menu-item" onclick="toggleLanguage()">
                 <i class="fa-solid fa-language" style="color: #f43f5e"></i>
                 <span id="langToggleText">हिंदी भाषा</span>
             </li>
-
             <li class="drawer-menu-item" onclick="toggleMenuDrawer(); openReferralModal();">
                 <i class="fa-solid fa-gift" style="color: var(--warning)"></i> <span data-i18n="menuReferrals">Referrals & Network</span>
             </li>
@@ -480,18 +465,12 @@
             <li class="drawer-menu-item" onclick="toggleMenuDrawer(); openWalletTxModal();">
                 <i class="fa-solid fa-clock-rotate-left" style="color: #a855f7"></i> <span data-i18n="menuHistory">Wallet History</span>
             </li>
-            
-            <!-- WhatsApp Support -->
             <li class="drawer-menu-item" onclick="openWhatsAppSupport()">
                 <i class="fa-brands fa-whatsapp" style="color: var(--success)"></i> <span data-i18n="menuSupport">WhatsApp Support</span>
             </li>
-            
-            <!-- Admin Panel -->
             <li class="drawer-menu-item" onclick="toggleMenuDrawer(); openAdminAuthModal();">
                 <i class="fa-solid fa-user-shield" style="color: var(--primary)"></i> <span data-i18n="menuAdmin">Admin Panel</span>
             </li>
-            
-            <!-- Logout -->
             <li class="drawer-menu-item" onclick="logoutBorrower()" style="color: var(--danger);">
                 <i class="fa-solid fa-right-from-bracket"></i> <span data-i18n="menuLogout">Logout</span>
             </li>
@@ -521,9 +500,7 @@
         <div id="adminTabUsersContent" style="padding: 10px 20px 20px 20px;"></div>
         <div id="adminTabWithdrawalsContent" style="padding: 10px 20px 20px 20px; display: none;"></div>
         
-        <!-- Admin Settings Tab Content -->
         <div id="adminTabSettingsContent" style="padding: 20px; display: none;">
-            <!-- Card 1: Default Referral Bonus Settings -->
             <div class="admin-card">
                 <h3 style="font-size: 1.05rem; color: var(--primary); margin-bottom: 14px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
                     <i class="fa-solid fa-gift"></i> Referral Bonus Configuration
@@ -532,15 +509,11 @@
                     <div class="form-group">
                         <label>Per Referral Bonus Reward (₹)</label>
                         <input type="number" id="settingRefBonusInput" required min="0" placeholder="e.g. 50">
-                        <small style="color: var(--text-muted); font-size:0.75rem; margin-top:4px; display:block;">
-                            Naya user referral code use karega toh Referrer aur User dono ko yahi bonus milega.
-                        </small>
                     </div>
                     <button type="submit" class="submit-btn" style="background: var(--primary);">Save Settings</button>
                 </form>
             </div>
 
-            <!-- Card 2: Send Custom Bonus to Single or All Users -->
             <div class="admin-card">
                 <h3 style="font-size: 1.05rem; color: var(--success); margin-bottom: 14px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
                     <i class="fa-solid fa-paper-plane"></i> Send Custom Bonus / Reward
@@ -575,7 +548,7 @@
         </div>
     </div>
 
-    <!-- Full Screen Details View -->
+    <!-- Details View -->
     <div class="page-view" id="detailPage">
         <div class="page-header">
             <button class="btn-back" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i></button>
@@ -587,7 +560,7 @@
         <div class="detail-view-container" id="detailPageContent"></div>
     </div>
 
-    <!-- Full Screen History View -->
+    <!-- History View -->
     <div class="page-view" id="historyPage">
         <div class="page-header">
             <button class="btn-back" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i></button>
@@ -654,7 +627,7 @@
         </div>
     </div>
 
-    <!-- Admin Process Withdrawal Modal -->
+    <!-- Admin Process Modal -->
     <div class="modal-overlay" id="adminProcessModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -701,7 +674,11 @@
                 </div>
                 <div class="form-group">
                     <label data-i18n="takenDateLabel">Taken Date</label>
-                    <input type="date" id="loanDate" required>
+                    <input type="hidden" id="loanDate">
+                    <div class="custom-date-trigger" onclick="openCustomDatePicker('loanDate')">
+                        <span id="loanDateDisplay">Select Date</span>
+                        <i class="fa-regular fa-calendar-days" style="color: var(--primary);"></i>
+                    </div>
                 </div>
                 <button type="submit" class="submit-btn" data-i18n="saveLenderBtn">Save Lender Record</button>
             </form>
@@ -723,7 +700,11 @@
                 </div>
                 <div class="form-group">
                     <label data-i18n="paymentDateLabel">Payment Date</label>
-                    <input type="date" id="payDate" required>
+                    <input type="hidden" id="payDate">
+                    <div class="custom-date-trigger" onclick="openCustomDatePicker('payDate')">
+                        <span id="payDateDisplay">Select Date</span>
+                        <i class="fa-regular fa-calendar-days" style="color: var(--primary);"></i>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label data-i18n="remarkLabel">Remark / Note (Optional)</label>
@@ -828,7 +809,7 @@
         </div>
     </div>
 
-    <!-- Highlighted PWA Install Popup Banner -->
+    <!-- PWA Install Popup Banner -->
     <div class="pwa-install-banner" id="pwaBanner">
         <div style="display: flex; align-items: center; gap: 12px;">
             <div class="pwa-icon-box">
@@ -854,102 +835,221 @@
     </div>
 
     <script>
-        // 2.5 Seconds Splash Screen Timer Logic
+        // CONFIGURATION: Replace with deployed Google Apps Script URL
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxMFacZwVKAmA_JXaevDc2ZzKjVWZ7yncgxk7OF1cW2f2cKSuMGIMwZQOeiovb5aH-naQ/exec";
+
+        // CUSTOM ALERT SYSTEM
+        function showAlert(msg, title = "Notice", type = "info") {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('customAlertModal');
+                const iconBox = document.getElementById('alertIconBox');
+                const titleEl = document.getElementById('alertTitle');
+                const msgEl = document.getElementById('alertMessage');
+                const confirmBtn = document.getElementById('alertConfirmBtn');
+                const cancelBtn = document.getElementById('alertCancelBtn');
+
+                cancelBtn.style.display = 'none';
+                titleEl.innerText = title;
+                msgEl.innerText = msg;
+
+                if (type === 'success') {
+                    iconBox.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+                    iconBox.style.color = 'var(--success)';
+                } else if (type === 'error') {
+                    iconBox.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+                    iconBox.style.color = 'var(--danger)';
+                } else if (type === 'warning') {
+                    iconBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                    iconBox.style.color = 'var(--warning)';
+                } else {
+                    iconBox.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
+                    iconBox.style.color = 'var(--primary)';
+                }
+
+                confirmBtn.onclick = () => {
+                    modal.classList.remove('active');
+                    resolve(true);
+                };
+
+                modal.classList.add('active');
+            });
+        }
+
+        function showConfirm(msg, title = "Are you sure?") {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('customAlertModal');
+                const iconBox = document.getElementById('alertIconBox');
+                const titleEl = document.getElementById('alertTitle');
+                const msgEl = document.getElementById('alertMessage');
+                const confirmBtn = document.getElementById('alertConfirmBtn');
+                const cancelBtn = document.getElementById('alertCancelBtn');
+
+                cancelBtn.style.display = 'block';
+                iconBox.innerHTML = '<i class="fa-solid fa-circle-question"></i>';
+                iconBox.style.color = 'var(--warning)';
+                titleEl.innerText = title;
+                msgEl.innerText = msg;
+
+                confirmBtn.onclick = () => {
+                    modal.classList.remove('active');
+                    resolve(true);
+                };
+
+                cancelBtn.onclick = () => {
+                    modal.classList.remove('active');
+                    resolve(false);
+                };
+
+                modal.classList.add('active');
+            });
+        }
+
+        // CUSTOM DATE PICKER SYSTEM
+        let pickerTargetInputId = null;
+        let pickerCurrentDate = new Date();
+        let pickerSelectedDate = new Date();
+
+        function setDateValue(inputId, dateObj) {
+            const formattedISO = dateObj.toISOString().split('T')[0];
+            const formattedDisplay = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+            
+            document.getElementById(inputId).value = formattedISO;
+            const displayEl = document.getElementById(inputId + 'Display');
+            if (displayEl) displayEl.innerText = formattedDisplay;
+        }
+
+        function openCustomDatePicker(inputId) {
+            pickerTargetInputId = inputId;
+            const currentVal = document.getElementById(inputId).value;
+            if (currentVal) {
+                pickerSelectedDate = new Date(currentVal);
+                pickerCurrentDate = new Date(currentVal);
+            } else {
+                pickerSelectedDate = new Date();
+                pickerCurrentDate = new Date();
+            }
+            renderPickerCalendar();
+            document.getElementById('customDatePickerModal').classList.add('active');
+        }
+
+        function changePickerMonth(delta) {
+            pickerCurrentDate.setMonth(pickerCurrentDate.getMonth() + delta);
+            renderPickerCalendar();
+        }
+
+        function renderPickerCalendar() {
+            const label = document.getElementById('pickerMonthYearLabel');
+            const grid = document.getElementById('pickerDaysGrid');
+            grid.innerHTML = '';
+
+            const year = pickerCurrentDate.getFullYear();
+            const month = pickerCurrentDate.getMonth();
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+            label.innerText = `${monthNames[month]} ${year}`;
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'picker-day-cell empty';
+                grid.appendChild(emptyCell);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cell = document.createElement('div');
+                cell.className = 'picker-day-cell';
+                cell.innerText = day;
+
+                if (pickerSelectedDate.getDate() === day && 
+                    pickerSelectedDate.getMonth() === month && 
+                    pickerSelectedDate.getFullYear() === year) {
+                    cell.classList.add('selected');
+                }
+
+                cell.onclick = () => {
+                    pickerSelectedDate = new Date(year, month, day);
+                    renderPickerCalendar();
+                };
+
+                grid.appendChild(cell);
+            }
+        }
+
+        function confirmSelectedDate() {
+            if (pickerTargetInputId) {
+                setDateValue(pickerTargetInputId, pickerSelectedDate);
+            }
+            closeModal('customDatePickerModal');
+        }
+
+        async function apiRequest(action, payload = {}) {
+            showLoader(true);
+            try {
+                const response = await fetch(GAS_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action, payload })
+                });
+                const res = await response.json();
+                showLoader(false);
+                return res;
+            } catch (err) {
+                showLoader(false);
+                console.error("API Call Failed:", err);
+                return { status: "error", message: "Network error / Offline mode" };
+            }
+        }
+
+        function showLoader(show, text = "Syncing Data...") {
+            const loader = document.getElementById('globalLoader');
+            document.getElementById('loaderText').innerText = text;
+            loader.style.display = show ? 'flex' : 'none';
+        }
+
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const splash = document.getElementById('splashScreen');
                 if (splash) {
                     splash.classList.add('fade-out');
-                    setTimeout(() => {
-                        splash.style.display = 'none';
-                    }, 500);
+                    setTimeout(() => { splash.style.display = 'none'; }, 500);
                 }
-            }, 2500); // 2.5 Seconds Splash Screen Duration
+            }, 2500);
         });
 
-        // Translations Data dictionary
         const translations = {
             en: {
-                appSubTitle: "Personal Borrower Loan Ledger",
-                loginTab: "Login",
-                registerTab: "Register",
-                borrowerNameLabel: "Borrower Name",
-                borrowerNamePh: "Enter Your Full Name",
-                mobileLabel: "Mobile Number",
-                mobilePh: "10 Digit Mobile Number",
-                passwordLabel: "Password",
-                passwordPh: "Enter Password",
-                referralCodeLabel: "Referral Code",
-                referralCodePh: "Enter Referral Code",
-                loginBtn: "Login as Borrower",
-                registerBtn: "Register as Borrower",
-                lendersListTitle: "Lenders List",
-                totalDue: "Total Due",
-                totalRepaid: "Total Repaid",
-                menuReferrals: "Referrals & Network",
-                menuWallet: "Wallet & Withdraw",
-                menuHistory: "Wallet History",
-                menuSupport: "WhatsApp Support",
-                menuAdmin: "Admin Panel",
-                menuLogout: "Logout",
-                adminPanelTitle: "Admin Control Panel",
-                adminPanelSub: "Manage Users, Withdrawals & Settings",
-                newLenderHeader: "New Lender Entry",
-                lenderNameLabel: "Lender Name",
-                lenderNamePh: "Name of Lender / Source",
-                borrowedAmountLabel: "Borrowed Amount (₹)",
-                monthlyRateLabel: "Monthly Rate (%)",
-                takenDateLabel: "Taken Date",
-                saveLenderBtn: "Save Lender Record",
-                addPaymentHeader: "Add Repayment Amount",
-                paidAmountLabel: "Paid Amount (₹)",
-                paymentDateLabel: "Payment Date",
-                remarkLabel: "Remark / Note (Optional)",
-                remarkPh: "e.g., Cash, UPI, Interest payment",
-                recordPaymentBtn: "Record Repayment",
-                borrowedTxt: "Borrowed",
-                dueAmountTxt: "Due Amount"
+                appSubTitle: "Personal Borrower Loan Ledger", loginTab: "Login", registerTab: "Register",
+                borrowerNameLabel: "Borrower Name", borrowerNamePh: "Enter Your Full Name", mobileLabel: "Mobile Number",
+                mobilePh: "10 Digit Mobile Number", passwordLabel: "Password", passwordPh: "Enter Password",
+                referralCodeLabel: "Referral Code", referralCodePh: "Enter Referral Code", loginBtn: "Login as Borrower",
+                registerBtn: "Register as Borrower", lendersListTitle: "Lenders List", totalDue: "Total Due",
+                totalRepaid: "Total Repaid", menuReferrals: "Referrals & Network", menuWallet: "Wallet & Withdraw",
+                menuHistory: "Wallet History", menuSupport: "WhatsApp Support", menuAdmin: "Admin Panel",
+                menuLogout: "Logout", adminPanelTitle: "Admin Control Panel", adminPanelSub: "Manage Users, Withdrawals & Settings",
+                newLenderHeader: "New Lender Entry", lenderNameLabel: "Lender Name", lenderNamePh: "Name of Lender / Source",
+                borrowedAmountLabel: "Borrowed Amount (₹)", monthlyRateLabel: "Monthly Rate (%)", takenDateLabel: "Taken Date",
+                saveLenderBtn: "Save Lender Record", addPaymentHeader: "Add Repayment Amount", paidAmountLabel: "Paid Amount (₹)",
+                paymentDateLabel: "Payment Date", remarkLabel: "Remark / Note (Optional)", remarkPh: "e.g., Cash, UPI, Interest payment",
+                recordPaymentBtn: "Record Repayment", borrowedTxt: "Borrowed", dueAmountTxt: "Due Amount",
+                totalDurationTxt: "Total Tenure", totalAmountTxt: "Total Amount"
             },
             hi: {
-                appSubTitle: "व्यक्तिगत उधारकर्ता ऋण बहीखाता",
-                loginTab: "लॉगिन",
-                registerTab: "रजिस्टर",
-                borrowerNameLabel: "उधारकर्ता का नाम",
-                borrowerNamePh: "अपना पूरा नाम दर्ज करें",
-                mobileLabel: "मोबाइल नंबर",
-                mobilePh: "10 अंकों का मोबाइल नंबर",
-                passwordLabel: "पासवर्ड",
-                passwordPh: "पासवर्ड दर्ज करें",
-                referralCodeLabel: "रेफरल कोड",
-                referralCodePh: "रेफरल कोड दर्ज करें",
-                loginBtn: "उधारकर्ता के रूप में लॉगिन करें",
-                registerBtn: "उधारकर्ता के रूप में रजिस्टर करें",
-                lendersListTitle: "ऋणदाताओं की सूची",
-                totalDue: "कुल बकाया",
-                totalRepaid: "कुल चुकाया गया",
-                menuReferrals: "रेफरल और नेटवर्क",
-                menuWallet: "वॉलेट और निकासी",
-                menuHistory: "वॉलेट इतिहास",
-                menuSupport: "व्हाट्सएप सहायता",
-                menuAdmin: "एडमिन पैनल",
-                menuLogout: "लॉगआउट",
-                adminPanelTitle: "एडमिन कंट्रोल पैनल",
-                adminPanelSub: "उपयोगकर्ता, निकासी और सेटिंग्स प्रबंधित करें",
-                newLenderHeader: "नया ऋणदाता दर्ज करें",
-                lenderNameLabel: "ऋणदाता का नाम",
-                lenderNamePh: "ऋणदाता / स्रोत का नाम",
-                borrowedAmountLabel: "उधार ली गई राशि (₹)",
-                monthlyRateLabel: "मासिक ब्याज दर (%)",
-                takenDateLabel: "ऋण लेने की तिथि",
-                saveLenderBtn: "ऋणदाता रिकॉर्ड सहेजें",
-                addPaymentHeader: "पुनर्भुगतान राशि जोड़ें",
-                paidAmountLabel: "भुगतान की गई राशि (₹)",
-                paymentDateLabel: "भुगतान की तिथि",
-                remarkLabel: "टिप्पणी / नोट (वैकल्पिक)",
-                remarkPh: "जैसे- नकद, यूपीआई, ब्याज भुगतान",
-                recordPaymentBtn: "पुनर्भुगतान दर्ज करें",
-                borrowedTxt: "उधार लिया",
-                dueAmountTxt: "बकाया राशि"
+                appSubTitle: "व्यक्तिगत उधारकर्ता ऋण बहीखाता", loginTab: "लॉगिन", registerTab: "रजिस्टर",
+                borrowerNameLabel: "उधारकर्ता का नाम", borrowerNamePh: "अपना पूरा नाम दर्ज करें", mobileLabel: "मोबाइल नंबर",
+                mobilePh: "10 अंकों का मोबाइल नंबर", passwordLabel: "पासवर्ड", passwordPh: "पासवर्ड दर्ज करें",
+                referralCodeLabel: "रेफरल कोड", referralCodePh: "रेफरल कोड दर्ज करें", loginBtn: "उधारकर्ता के रूप में लॉगिन करें",
+                registerBtn: "उधारकर्ता के रूप में रजिस्टर करें", lendersListTitle: "ऋणदाताओं की सूची", totalDue: "कुल बकाया",
+                totalRepaid: "कुल चुकाया गया", menuReferrals: "रेफरल और नेटवर्क", menuWallet: "वॉलेट और निकासी",
+                menuHistory: "वॉलेट इतिहास", menuSupport: "व्हाट्सएप सहायता", menuAdmin: "एडमिन पैनल",
+                menuLogout: "लॉगआउट", adminPanelTitle: "एडमिन कंट्रोल पैनल", adminPanelSub: "उपयोगकर्ता, निकासी और सेटिंग्स प्रबंधित करें",
+                newLenderHeader: "नया ऋणदाता दर्ज करें", lenderNameLabel: "ऋणदाता का नाम", lenderNamePh: "ऋणदाता / स्रोत का नाम",
+                borrowedAmountLabel: "उधार ली गई राशि (₹)", monthlyRateLabel: "मासिक ब्याज दर (%)", takenDateLabel: "ऋण लेने की तिथि",
+                saveLenderBtn: "ऋणदाता रिकॉर्ड सहेजें", addPaymentHeader: "पुनर्भुगतान राशि जोड़ें", paidAmountLabel: "भुगतान की गई राशि (₹)",
+                paymentDateLabel: "भुगतान की तिथि", remarkLabel: "टिप्पणी / नोट (वैकल्पिक)", remarkPh: "जैसे- नकद, यूपीआई, ब्याज भुगतान",
+                recordPaymentBtn: "पुनर्भुगतान दर्ज करें", borrowedTxt: "उधार लिया", dueAmountTxt: "बकाया राशि",
+                totalDurationTxt: "कुल समय (अवधि)", totalAmountTxt: "कुल राशि"
             }
         };
 
@@ -968,9 +1068,7 @@
             localStorage.setItem('loanBook_theme', theme);
         }
 
-        function toggleTheme() {
-            applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
-        }
+        function toggleTheme() { applyTheme(currentTheme === 'dark' ? 'light' : 'dark'); }
 
         function applyLanguage(lang) {
             currentLang = lang;
@@ -995,141 +1093,63 @@
             if (currentBorrower) renderApp();
         }
 
-        function toggleLanguage() {
-            applyLanguage(currentLang === 'en' ? 'hi' : 'en');
-        }
+        function toggleLanguage() { applyLanguage(currentLang === 'en' ? 'hi' : 'en'); }
 
-        /* ---------------- COMPLETE HIGH SPEED PWA ENABLEMENT ---------------- */
+        // PWA Setup
         const notebookSvgIcon = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none"><rect x="18" y="10" width="68" height="80" rx="10" fill="%233b82f6"/><path d="M12 24H22M12 40H22M12 56H22M12 72H22" stroke="%23ffffff" stroke-width="5" stroke-linecap="round"/><rect x="30" y="24" width="44" height="6" rx="3" fill="%23ffffff"/><rect x="30" y="38" width="34" height="6" rx="3" fill="%23ffffff" opacity="0.8"/><rect x="30" y="52" width="40" height="6" rx="3" fill="%23ffffff" opacity="0.8"/><path d="M58 72L64 78L78 64" stroke="%2310b981" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-        
         const manifestData = {
-            "name": "LoanBook Ledger",
-            "short_name": "LoanBook",
-            "start_url": "./",
-            "display": "standalone",
-            "background_color": "#0b0f19",
-            "theme_color": "#0b0f19",
-            "icons": [
-                {
-                    "src": notebookSvgIcon,
-                    "sizes": "192x192 512x512",
-                    "type": "image/svg+xml",
-                    "purpose": "any maskable"
-                }
-            ]
+            "name": "LoanBook Ledger", "short_name": "LoanBook", "start_url": "./",
+            "display": "standalone", "background_color": "#0b0f19", "theme_color": "#0b0f19",
+            "icons": [{ "src": notebookSvgIcon, "sizes": "192x192 512x512", "type": "image/svg+xml", "purpose": "any maskable" }]
         };
         const blob = new Blob([JSON.stringify(manifestData)], {type: 'application/json'});
         document.getElementById('pwaManifest').setAttribute('href', URL.createObjectURL(blob));
 
-        // High Speed Cache-First Service Worker Blob Registration
         if ('serviceWorker' in navigator) {
             const swCode = `
-                const CACHE_NAME = 'loanbook-v2';
+                const CACHE_NAME = 'loanbook-v3';
                 const ASSETS = ['./', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'];
-                
-                self.addEventListener('install', (e) => {
-                    self.skipWaiting();
-                    e.waitUntil(
-                        caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
-                    );
-                });
-
-                self.addEventListener('activate', (e) => {
-                    e.waitUntil(
-                        caches.keys().then((keys) => {
-                            return Promise.all(
-                                keys.map((key) => {
-                                    if (key !== CACHE_NAME) return caches.delete(key);
-                                })
-                            );
-                        }).then(() => self.clients.claim())
-                    );
-                });
-
-                self.addEventListener('fetch', (e) => {
-                    e.respondWith(
-                        caches.match(e.request).then((cachedResponse) => {
-                            if (cachedResponse) return cachedResponse;
-                            return fetch(e.request).then((networkResponse) => {
-                                if (e.request.method === 'GET' && networkResponse.status === 200) {
-                                    const responseClone = networkResponse.clone();
-                                    caches.open(CACHE_NAME).then((cache) => cache.put(e.request, responseClone));
-                                }
-                                return networkResponse;
-                            });
-                        }).catch(() => caches.match('./'))
-                    );
-                });
+                self.addEventListener('install', (e) => { self.skipWaiting(); e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))); });
+                self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then((keys) => Promise.all(keys.map((key) => { if (key !== CACHE_NAME) return caches.delete(key); }))).then(() => self.clients.claim())); });
+                self.addEventListener('fetch', (e) => { e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request))); });
             `;
             const swBlob = new Blob([swCode], { type: 'text/javascript' });
-            const swUrl = URL.createObjectURL(swBlob);
-            navigator.serviceWorker.register(swUrl).catch(err => console.log('SW Register error:', err));
+            navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(err => console.log('SW Error:', err));
         }
 
-        // PWA Installation & Automatic Hide Logic if Installed
         let deferredPrompt = null;
-        
         function isAppInstalled() {
-            const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || 
-                                     window.navigator.standalone || 
-                                     document.referrer.includes('android-app://');
-            const isMarkedInstalled = localStorage.getItem('loanbook_pwa_installed') === 'true';
-            return isStandaloneMode || isMarkedInstalled;
+            return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || localStorage.getItem('loanbook_pwa_installed') === 'true';
         }
 
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            // Show banner only if app is NOT installed
-            if (!isAppInstalled()) {
-                document.getElementById('pwaBanner').classList.add('show');
-            }
+            e.preventDefault(); deferredPrompt = e;
+            if (!isAppInstalled()) document.getElementById('pwaBanner').classList.add('show');
         });
 
         document.getElementById('installPwaBtn').addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    console.log('User installed PWA');
-                    localStorage.setItem('loanbook_pwa_installed', 'true');
-                }
+                if (outcome === 'accepted') localStorage.setItem('loanbook_pwa_installed', 'true');
                 deferredPrompt = null;
                 document.getElementById('pwaBanner').classList.remove('show');
             }
         });
+        document.getElementById('dismissPwaBtn').addEventListener('click', () => { document.getElementById('pwaBanner').classList.remove('show'); });
 
-        // Later (Dismiss Banner) Event Listener
-        document.getElementById('dismissPwaBtn').addEventListener('click', () => {
-            document.getElementById('pwaBanner').classList.remove('show');
-        });
-
-        window.addEventListener('appinstalled', () => {
-            localStorage.setItem('loanbook_pwa_installed', 'true');
-            document.getElementById('pwaBanner').classList.remove('show');
-            deferredPrompt = null;
-        });
-
-        // Check on load if app is opened as standalone/installed
-        if (isAppInstalled()) {
-            const pwaBanner = document.getElementById('pwaBanner');
-            if (pwaBanner) pwaBanner.classList.remove('show');
-        }
-
-        document.getElementById('loanDate').valueAsDate = new Date();
-        document.getElementById('payDate').valueAsDate = new Date();
+        // Default Date Initialization
+        setDateValue('loanDate', new Date());
+        setDateValue('payDate', new Date());
 
         let currentAuthMode = 'login';
         let currentBorrower = JSON.parse(localStorage.getItem('activeBorrower')) || null;
         let loans = [];
+        let walletTxs = [];
+        let referredList = [];
         let currentOpenLoanId = null;
         let currentAdminTab = 'users';
-
-        function getDynamicReferralBonus() {
-            let bonus = localStorage.getItem('loanBook_referralBonusSetting');
-            return bonus !== null ? parseFloat(bonus) : 50;
-        }
+        let cachedAdminData = null;
 
         window.addEventListener('DOMContentLoaded', () => {
             applyTheme(currentTheme);
@@ -1177,90 +1197,44 @@
                 refGroup.style.display = 'none';
             }
             
-            const btnText = mode === 'login' ? translations[currentLang].loginBtn : translations[currentLang].registerBtn;
-            document.getElementById('authSubmitBtn').innerText = btnText;
+            document.getElementById('authSubmitBtn').innerText = mode === 'login' ? translations[currentLang].loginBtn : translations[currentLang].registerBtn;
         }
 
         function generateUniqueRefCode() {
-            const random6Digits = Math.floor(100000 + Math.random() * 900000);
-            return 'LB' + random6Digits;
+            return 'LB' + Math.floor(100000 + Math.random() * 900000);
         }
 
-        function addWalletTransaction(mobile, title, amount, type) {
-            let txs = JSON.parse(localStorage.getItem('walletTransactions_' + mobile)) || [];
-            txs.unshift({
-                id: 'TX' + Date.now(),
-                title: title,
-                amount: amount,
-                type: type,
-                date: new Date().toLocaleString('en-IN')
-            });
-            localStorage.setItem('walletTransactions_' + mobile, JSON.stringify(txs));
-        }
-
-        function handleAuthSubmit(e) {
+        async function handleAuthSubmit(e) {
             e.preventDefault();
             const mobile = document.getElementById('authMobile').value.trim();
             const password = document.getElementById('authPassword').value.trim();
 
-            let borrowers = JSON.parse(localStorage.getItem('borrowerUsers')) || [];
-
             if (currentAuthMode === 'register') {
                 const name = document.getElementById('authName').value.trim();
                 const refCodeInput = document.getElementById('authRefCode').value.trim();
+                const myRefCode = generateUniqueRefCode();
 
-                const exists = borrowers.find(u => u.mobile === mobile);
-                if (exists) {
-                    alert(currentLang === 'hi' ? 'मोबाइल नंबर पहले से पंजीकृत है! कृपया लॉगिन करें।' : 'Mobile Number is already registered! Please Login.');
-                    switchAuthTab('login');
-                    return;
+                const res = await apiRequest('register', { name, mobile, password, myRefCode, refCodeInput });
+                if (res.status === "success") {
+                    document.getElementById('alertMobile').innerText = mobile;
+                    document.getElementById('alertPass').innerText = password;
+                    document.getElementById('regAlertModal').classList.add('active');
+                    currentBorrower = res.user;
+                    localStorage.setItem('activeBorrower', JSON.stringify(currentBorrower));
+                    initSession();
+                } else {
+                    await showAlert(res.message || 'Registration failed!', 'Error', 'error');
                 }
-
-                let myRefCode = generateUniqueRefCode();
-                while (borrowers.some(u => u.refCode === myRefCode)) {
-                    myRefCode = generateUniqueRefCode();
-                }
-
-                const currentBonusAmount = getDynamicReferralBonus();
-
-                const newBorrower = {
-                    name, mobile, password,
-                    refCode: myRefCode,
-                    referredBy: refCodeInput || null,
-                    refCount: 0,
-                    refBonus: refCodeInput ? currentBonusAmount : 0,
-                    savedUpi: ''
-                };
-
-                if (refCodeInput) {
-                    addWalletTransaction(mobile, 'Sign Up Referral Bonus', currentBonusAmount, 'credit');
-                    let referrer = borrowers.find(u => u.refCode === refCodeInput);
-                    if (referrer) {
-                        referrer.refCount = (referrer.refCount || 0) + 1;
-                        referrer.refBonus = (referrer.refBonus || 0) + currentBonusAmount;
-                        addWalletTransaction(referrer.mobile, `Referral Reward (${name})`, currentBonusAmount, 'credit');
-                    }
-                }
-
-                borrowers.unshift(newBorrower);
-                localStorage.setItem('borrowerUsers', JSON.stringify(borrowers));
-
-                document.getElementById('alertMobile').innerText = mobile;
-                document.getElementById('alertPass').innerText = password;
-                document.getElementById('regAlertModal').classList.add('active');
-
-                currentBorrower = newBorrower;
             } else {
-                const user = borrowers.find(u => u.mobile === mobile && u.password === password);
-                if (!user) {
-                    alert(currentLang === 'hi' ? 'अमान्य मोबाइल नंबर या पासवर्ड!' : 'Invalid Mobile Number or Password!');
-                    return;
+                const res = await apiRequest('login', { mobile, password });
+                if (res.status === "success") {
+                    currentBorrower = res.user;
+                    localStorage.setItem('activeBorrower', JSON.stringify(currentBorrower));
+                    initSession();
+                } else {
+                    await showAlert(res.message || 'Invalid Credentials!', 'Login Error', 'error');
                 }
-                currentBorrower = user;
             }
-
-            localStorage.setItem('activeBorrower', JSON.stringify(currentBorrower));
-            initSession();
         }
 
         function logoutBorrower() {
@@ -1273,7 +1247,7 @@
             document.getElementById('authScreen').style.display = 'flex';
         }
 
-        function initSession() {
+        async function initSession() {
             if (!currentBorrower) return;
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('mainView').style.display = 'block';
@@ -1282,33 +1256,23 @@
             document.getElementById('borrowerDisplayMobile').innerText = '+91 ' + currentBorrower.mobile;
             document.getElementById('borrowerAvatar').innerText = currentBorrower.name.charAt(0).toUpperCase();
 
-            let borrowers = JSON.parse(localStorage.getItem('borrowerUsers')) || [];
-            let freshUser = borrowers.find(u => u.mobile === currentBorrower.mobile);
-            if (freshUser) {
-                currentBorrower = freshUser;
+            const res = await apiRequest('syncUserData', { mobile: currentBorrower.mobile });
+            if (res.status === "success") {
+                currentBorrower = res.user;
                 localStorage.setItem('activeBorrower', JSON.stringify(currentBorrower));
+                loans = res.loans || [];
+                walletTxs = res.transactions || [];
+                referredList = res.referredUsers || [];
             }
 
             document.getElementById('headerWalletBalance').innerText = `₹${currentBorrower.refBonus || 0}`;
-
-            const dataKey = 'loanBookBorrowerData_' + currentBorrower.mobile;
-            loans = JSON.parse(localStorage.getItem(dataKey)) || [];
-
             renderApp();
-        }
-
-        function saveLoansToStorage() {
-            if (currentBorrower) {
-                const dataKey = 'loanBookBorrowerData_' + currentBorrower.mobile;
-                localStorage.setItem(dataKey, JSON.stringify(loans));
-            }
         }
 
         function shareReferralLink() {
             if (!currentBorrower) return;
             const refCode = currentBorrower.refCode || generateUniqueRefCode();
-            const baseUrl = window.location.origin + window.location.pathname;
-            const referralLink = `${baseUrl}?ref=${refCode}`;
+            const referralLink = `${window.location.origin}${window.location.pathname}?ref=${refCode}`;
             const shareText = `Join LoanBook app to manage your borrower loans easily! Use my Referral Link to Register: ${referralLink}`;
             
             if (navigator.share) {
@@ -1324,12 +1288,7 @@
 
         function openReferralModal() {
             if (!currentBorrower) return;
-            initSession();
-            document.getElementById('displayRefCode').innerText = currentBorrower.refCode || generateUniqueRefCode();
-
-            let borrowers = JSON.parse(localStorage.getItem('borrowerUsers')) || [];
-            let referredList = borrowers.filter(u => u.referredBy === currentBorrower.refCode);
-
+            document.getElementById('displayRefCode').innerText = currentBorrower.refCode;
             document.getElementById('refCountDisplay').innerText = `${referredList.length} Users`;
             document.getElementById('refBonusDisplay').innerText = `₹${currentBorrower.refBonus || 0}`;
 
@@ -1343,7 +1302,6 @@
                     const item = document.createElement('div');
                     item.className = 'ref-user-item';
                     const waMessage = encodeURIComponent(`Hello ${u.name}, welcome to LoanBook App!`);
-                    
                     item.innerHTML = `
                         <div>
                             <strong style="font-size:0.9rem; color:var(--text-main); display:block;">${u.name}</strong>
@@ -1356,18 +1314,14 @@
                     container.appendChild(item);
                 });
             }
-
             document.getElementById('referralModal').classList.add('active');
         }
 
         function openWalletWithdrawModal() {
             if (!currentBorrower) return;
-            initSession();
-
             document.getElementById('modalWalletBalance').innerText = `₹${currentBorrower.refBonus || 0}`;
             document.getElementById('withdrawAmount').value = currentBorrower.refBonus || '';
             document.getElementById('withdrawUpi').value = currentBorrower.savedUpi || '';
-
             document.getElementById('walletWithdrawModal').classList.add('active');
         }
 
@@ -1376,106 +1330,77 @@
             const container = document.getElementById('walletTxList');
             container.innerHTML = '';
 
-            let txs = JSON.parse(localStorage.getItem('walletTransactions_' + currentBorrower.mobile)) || [];
-
-            if (txs.length === 0) {
+            if (walletTxs.length === 0) {
                 container.innerHTML = '<div class="empty-state" style="padding: 30px 10px;"><p>No transactions recorded yet.</p></div>';
             } else {
-                txs.forEach(t => {
+                walletTxs.forEach(t => {
                     const item = document.createElement('div');
                     item.style.cssText = "background: rgba(0,0,0,0.03); border:1px solid var(--border-color); border-radius:10px; padding:12px; display:flex; justify-content:space-between; align-items:center;";
-                    
-                    const isCredit = t.type === 'credit';
+                    const isCredit = t.Type === 'credit';
                     const amountColor = isCredit ? 'var(--success)' : 'var(--danger)';
                     const sign = isCredit ? '+' : '-';
 
                     item.innerHTML = `
                         <div>
-                            <strong style="font-size:0.85rem; color:var(--text-main); display:block;">${t.title}</strong>
-                            <span style="font-size:0.72rem; color:var(--text-muted);">${t.date}</span>
+                            <strong style="font-size:0.85rem; color:var(--text-main); display:block;">${t.Title}</strong>
+                            <span style="font-size:0.72rem; color:var(--text-muted);">${t.Date}</span>
                         </div>
-                        <span style="font-size:1rem; font-weight:800; color:${amountColor};">${sign} ₹${t.amount}</span>
+                        <span style="font-size:1rem; font-weight:800; color:${amountColor};">${sign} ₹${t.Amount}</span>
                     `;
                     container.appendChild(item);
                 });
             }
-
             document.getElementById('walletTxModal').classList.add('active');
         }
 
-        function handleWithdraw(e) {
+        async function handleWithdraw(e) {
             e.preventDefault();
             const upi = document.getElementById('withdrawUpi').value.trim();
             const reqAmount = parseFloat(document.getElementById('withdrawAmount').value);
-            const currentBonus = currentBorrower.refBonus || 0;
 
-            if (!reqAmount || reqAmount <= 0) {
-                alert('Please enter a valid withdrawal amount!');
-                return;
+            const res = await apiRequest('requestWithdrawal', {
+                mobile: currentBorrower.mobile, userName: currentBorrower.name, amount: reqAmount, upi: upi
+            });
+
+            if (res.status === "success") {
+                await showAlert(`Withdrawal Request of ₹${reqAmount} submitted successfully!\nUPI ID (${upi}) saved for future withdrawals.`, 'Success', 'success');
+                closeModal('walletWithdrawModal');
+                initSession();
+            } else {
+                await showAlert(res.message || 'Withdrawal failed!', 'Error', 'error');
             }
-
-            if (reqAmount > currentBonus) {
-                alert(`Insufficient balance! Your available balance is ₹${currentBonus}`);
-                return;
-            }
-
-            currentBorrower.savedUpi = upi;
-            currentBorrower.refBonus = currentBonus - reqAmount;
-
-            localStorage.setItem('activeBorrower', JSON.stringify(currentBorrower));
-
-            let borrowers = JSON.parse(localStorage.getItem('borrowerUsers')) || [];
-            let idx = borrowers.findIndex(u => u.mobile === currentBorrower.mobile);
-            if (idx !== -1) {
-                borrowers[idx].savedUpi = upi;
-                borrowers[idx].refBonus = currentBorrower.refBonus;
-                localStorage.setItem('borrowerUsers', JSON.stringify(borrowers));
-            }
-
-            let withdrawals = JSON.parse(localStorage.getItem('loanBookWithdrawals')) || [];
-            const reqData = {
-                id: 'REQ' + Date.now(),
-                mobile: currentBorrower.mobile,
-                userName: currentBorrower.name,
-                amount: reqAmount,
-                upi: upi,
-                date: new Date().toLocaleString('en-IN'),
-                status: 'Pending',
-                remark: 'Awaiting Admin Approval'
-            };
-            withdrawals.unshift(reqData);
-            localStorage.setItem('loanBookWithdrawals', JSON.stringify(withdrawals));
-
-            addWalletTransaction(currentBorrower.mobile, `Withdrawal Request (${upi})`, reqAmount, 'debit');
-
-            alert(`Withdrawal Request of ₹${reqAmount} submitted successfully!\nUPI ID (${upi}) saved for future withdrawals.`);
-            closeModal('walletWithdrawModal');
-            initSession();
         }
 
-        /* ---------------- ADMIN PANEL LOGIC ---------------- */
-        function openAdminAuthModal() {
-            document.getElementById('adminAuthModal').classList.add('active');
-        }
+        // ADMIN PANEL
+        function openAdminAuthModal() { document.getElementById('adminAuthModal').classList.add('active'); }
 
-        function handleAdminLogin(e) {
+        async function handleAdminLogin(e) {
             e.preventDefault();
             const id = document.getElementById('adminIdInput').value.trim();
             const pass = document.getElementById('adminPassInput').value.trim();
 
-            if (id === 'Admin' && pass === '887390') {
+            const res = await apiRequest('adminLogin', { id, pass });
+            if (res.status === "success") {
                 closeModal('adminAuthModal');
                 document.getElementById('adminAuthForm').reset();
                 document.getElementById('adminPage').classList.add('active');
-                renderAdminData();
+                await loadAdminData();
             } else {
-                alert('Invalid Admin Credentials!');
+                await showAlert('Invalid Admin Credentials!', 'Access Denied', 'error');
             }
         }
 
         function closeAdminPage() {
             document.getElementById('adminPage').classList.remove('active');
             initSession();
+        }
+
+        async function loadAdminData() {
+            const res = await apiRequest('getAdminData');
+            if (res.status === "success") {
+                cachedAdminData = res;
+                renderAdminData();
+            }
         }
 
         function switchAdminTab(tab) {
@@ -1494,79 +1419,40 @@
 
         function toggleBonusMobileField() {
             const target = document.getElementById('bonusTargetSelect').value;
-            const mobileGroup = document.getElementById('bonusMobileGroup');
-            const mobileInput = document.getElementById('bonusTargetMobile');
-
-            if (target === 'single') {
-                mobileGroup.style.display = 'block';
-                mobileInput.setAttribute('required', 'required');
-            } else {
-                mobileGroup.style.display = 'none';
-                mobileInput.removeAttribute('required');
-            }
+            document.getElementById('bonusMobileGroup').style.display = (target === 'single') ? 'block' : 'none';
         }
 
-        function sendCustomBonus(e) {
+        async function sendCustomBonus(e) {
             e.preventDefault();
             const target = document.getElementById('bonusTargetSelect').value;
             const amount = parseFloat(document.getElementById('bonusCustomAmount').value);
             const remark = document.getElementById('bonusCustomRemark').value.trim();
-            let borrowers = JSON.parse(localStorage.getItem('borrowerUsers')) || [];
+            const mobile = document.getElementById('bonusTargetMobile').value.trim();
 
-            if (isNaN(amount) || amount <= 0) {
-                alert('Please enter a valid bonus amount!');
-                return;
-            }
-
-            if (borrowers.length === 0) {
-                alert('No registered users found!');
-                return;
-            }
-
-            if (target === 'single') {
-                const targetMobile = document.getElementById('bonusTargetMobile').value.trim();
-                let userIndex = borrowers.findIndex(u => u.mobile === targetMobile);
-
-                if (userIndex === -1) {
-                    alert('User with this mobile number does not exist!');
-                    return;
-                }
-
-                borrowers[userIndex].refBonus = (borrowers[userIndex].refBonus || 0) + amount;
-                addWalletTransaction(targetMobile, `Bonus: ${remark}`, amount, 'credit');
-                localStorage.setItem('borrowerUsers', JSON.stringify(borrowers));
-                alert(`₹${amount} Bonus credited to user (${borrowers[userIndex].name}) successfully!`);
+            const res = await apiRequest('sendCustomBonusAdmin', { target, amount, remark, mobile });
+            if (res.status === "success") {
+                await showAlert('Bonus sent successfully!', 'Success', 'success');
+                document.getElementById('adminSendBonusForm').reset();
+                loadAdminData();
             } else {
-                if (confirm(`Are you sure you want to send ₹${amount} bonus to ALL ${borrowers.length} users?`)) {
-                    borrowers.forEach(user => {
-                        user.refBonus = (user.refBonus || 0) + amount;
-                        addWalletTransaction(user.mobile, `Bonus: ${remark}`, amount, 'credit');
-                    });
-                    localStorage.setItem('borrowerUsers', JSON.stringify(borrowers));
-                    alert(`₹${amount} Bonus credited to all ${borrowers.length} users successfully!`);
-                } else {
-                    return;
-                }
+                await showAlert(res.message || 'Operation failed', 'Error', 'error');
             }
-
-            document.getElementById('adminSendBonusForm').reset();
-            toggleBonusMobileField();
         }
 
-        function saveAdminSettings(e) {
+        async function saveAdminSettings(e) {
             e.preventDefault();
-            const newBonus = parseFloat(document.getElementById('settingRefBonusInput').value);
-            if (isNaN(newBonus) || newBonus < 0) {
-                alert('Please enter a valid bonus amount!');
-                return;
+            const bonus = parseFloat(document.getElementById('settingRefBonusInput').value);
+            const res = await apiRequest('saveSettingsAdmin', { bonus });
+            if (res.status === "success") {
+                await showAlert(`Referral Bonus updated to ₹${bonus}`, 'Settings Saved', 'success');
+                loadAdminData();
             }
-            localStorage.setItem('loanBook_referralBonusSetting', newBonus);
-            alert(`Referral Bonus Amount updated to ₹${newBonus} successfully!`);
         }
 
         function renderAdminData() {
+            if (!cachedAdminData) return;
             if (currentAdminTab === 'settings') {
-                document.getElementById('settingRefBonusInput').value = getDynamicReferralBonus();
+                document.getElementById('settingRefBonusInput').value = cachedAdminData.bonusSetting;
                 toggleBonusMobileField();
                 return;
             }
@@ -1576,17 +1462,7 @@
             if (currentAdminTab === 'users') {
                 const usersContainer = document.getElementById('adminTabUsersContent');
                 usersContainer.innerHTML = '';
-
-                let borrowers = JSON.parse(localStorage.getItem('borrowerUsers')) || [];
-                
-                let filtered = borrowers.filter(u => 
-                    u.name.toLowerCase().includes(query) || u.mobile.includes(query)
-                );
-
-                if (filtered.length === 0) {
-                    usersContainer.innerHTML = '<div class="empty-state"><p>No users found matching search.</p></div>';
-                    return;
-                }
+                let filtered = cachedAdminData.users.filter(u => u.name.toLowerCase().includes(query) || u.mobile.includes(query));
 
                 filtered.forEach(u => {
                     const card = document.createElement('div');
@@ -1602,8 +1478,8 @@
                         <div class="details-grid" style="margin-bottom:0;">
                             <div class="detail-item"><span class="label">Password</span><span class="value" style="color:var(--primary)">${u.password}</span></div>
                             <div class="detail-item"><span class="label">Ref Code</span><span class="value" style="color:var(--warning)">${u.refCode}</span></div>
-                            <div class="detail-item"><span class="label">Wallet Balance</span><span class="value" style="color:var(--success)">₹${u.refBonus || 0}</span></div>
-                            <div class="detail-item"><span class="label">Total Referred</span><span class="value">${u.refCount || 0} Users</span></div>
+                            <div class="detail-item"><span class="label">Wallet Balance</span><span class="value" style="color:var(--success)">₹${u.refBonus}</span></div>
+                            <div class="detail-item"><span class="label">Total Referred</span><span class="value">${u.refCount} Users</span></div>
                         </div>
                     `;
                     usersContainer.appendChild(card);
@@ -1611,17 +1487,7 @@
             } else if (currentAdminTab === 'withdrawals') {
                 const reqContainer = document.getElementById('adminTabWithdrawalsContent');
                 reqContainer.innerHTML = '';
-
-                let withdrawals = JSON.parse(localStorage.getItem('loanBookWithdrawals')) || [];
-
-                let filtered = withdrawals.filter(w => 
-                    w.userName.toLowerCase().includes(query) || w.mobile.includes(query) || w.upi.toLowerCase().includes(query)
-                );
-
-                if (filtered.length === 0) {
-                    reqContainer.innerHTML = '<div class="empty-state"><p>No withdrawal requests found.</p></div>';
-                    return;
-                }
+                let filtered = cachedAdminData.withdrawals.filter(w => w.userName.toLowerCase().includes(query) || w.mobile.includes(query) || w.upi.toLowerCase().includes(query));
 
                 filtered.forEach(w => {
                     let badgeClass = 'badge-pending';
@@ -1655,43 +1521,29 @@
         }
 
         function openAdminEditUserModal(mobile) {
-            let borrowers = JSON.parse(localStorage.getItem('borrowerUsers')) || [];
-            let user = borrowers.find(u => u.mobile === mobile);
+            let user = cachedAdminData.users.find(u => u.mobile === mobile);
             if (!user) return;
-
             document.getElementById('editUserMobileKey').value = user.mobile;
             document.getElementById('editUserName').value = user.name;
             document.getElementById('editUserMobile').value = user.mobile;
             document.getElementById('editUserPassword').value = user.password;
             document.getElementById('editUserRefCode').value = user.refCode;
-            document.getElementById('editUserBonus').value = user.refBonus || 0;
-
+            document.getElementById('editUserBonus').value = user.refBonus;
             document.getElementById('adminEditUserModal').classList.add('active');
         }
 
-        function saveAdminEditUser(e) {
+        async function saveAdminEditUser(e) {
             e.preventDefault();
             const mobile = document.getElementById('editUserMobileKey').value;
-            let borrowers = JSON.parse(localStorage.getItem('borrowerUsers')) || [];
+            const name = document.getElementById('editUserName').value.trim();
+            const password = document.getElementById('editUserPassword').value.trim();
+            const refCode = document.getElementById('editUserRefCode').value.trim();
+            const bonus = parseFloat(document.getElementById('editUserBonus').value);
 
-            let idx = borrowers.findIndex(u => u.mobile === mobile);
-            if (idx !== -1) {
-                const oldBonus = borrowers[idx].refBonus || 0;
-                const newBonus = parseFloat(document.getElementById('editUserBonus').value) || 0;
-
-                borrowers[idx].name = document.getElementById('editUserName').value.trim();
-                borrowers[idx].password = document.getElementById('editUserPassword').value.trim();
-                borrowers[idx].refCode = document.getElementById('editUserRefCode').value.trim();
-                borrowers[idx].refBonus = newBonus;
-
-                if (newBonus !== oldBonus) {
-                    const diff = newBonus - oldBonus;
-                    addWalletTransaction(mobile, 'Admin Balance Update', Math.abs(diff), diff > 0 ? 'credit' : 'debit');
-                }
-
-                localStorage.setItem('borrowerUsers', JSON.stringify(borrowers));
+            const res = await apiRequest('updateUserAdmin', { mobile, name, password, refCode, bonus });
+            if (res.status === "success") {
                 closeModal('adminEditUserModal');
-                renderAdminData();
+                loadAdminData();
             }
         }
 
@@ -1700,49 +1552,33 @@
             document.getElementById('adminProcessModal').classList.add('active');
         }
 
-        function saveWithdrawalStatus(e) {
+        async function saveWithdrawalStatus(e) {
             e.preventDefault();
             const reqId = document.getElementById('processReqId').value;
-            const newStatus = document.getElementById('processStatus').value;
+            const status = document.getElementById('processStatus').value;
             const remark = document.getElementById('processRemark').value.trim();
 
-            let withdrawals = JSON.parse(localStorage.getItem('loanBookWithdrawals')) || [];
-            let reqIdx = withdrawals.findIndex(w => w.id === reqId);
-
-            if (reqIdx !== -1) {
-                withdrawals[reqIdx].status = newStatus;
-                withdrawals[reqIdx].remark = remark || (newStatus === 'Successful' ? 'Approved by Admin' : 'Rejected by Admin');
-
-                if (newStatus === 'Rejected') {
-                    let borrowers = JSON.parse(localStorage.getItem('borrowerUsers')) || [];
-                    let uIdx = borrowers.findIndex(u => u.mobile === withdrawals[reqIdx].mobile);
-                    if (uIdx !== -1) {
-                        borrowers[uIdx].refBonus = (borrowers[uIdx].refBonus || 0) + withdrawals[reqIdx].amount;
-                        localStorage.setItem('borrowerUsers', JSON.stringify(borrowers));
-                        
-                        addWalletTransaction(withdrawals[reqIdx].mobile, 'Withdrawal Rejected (Refund)', withdrawals[reqIdx].amount, 'credit');
-                    }
-                }
-
-                localStorage.setItem('loanBookWithdrawals', JSON.stringify(withdrawals));
+            const res = await apiRequest('processWithdrawalAdmin', { reqId, status, remark });
+            if (res.status === "success") {
                 closeModal('adminProcessModal');
                 document.getElementById('adminProcessForm').reset();
-                renderAdminData();
+                loadAdminData();
             }
         }
 
-        /* ---------------- LOAN & MATH CALCULATIONS ---------------- */
+        // LOANS & MATH CALCULATIONS
         function calculateLoanMath(loan) {
             let principal = parseFloat(loan.amount) || 0;
             let rate = parseFloat(loan.rate) || 0;
             let startDate = new Date(loan.startDate);
             let today = new Date();
-
             startDate.setHours(0, 0, 0, 0); today.setHours(0, 0, 0, 0);
 
             let totalDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
             if (totalDays < 0) totalDays = 0;
             
+            let monthsPart = Math.floor(totalDays / 30);
+            let daysPart = totalDays % 30;
             let totalMonths = totalDays / 30; 
             let monthlyInterest = principal * (rate / 100);
             let accumulatedInterest = monthlyInterest * totalMonths;
@@ -1756,19 +1592,16 @@
             let totalOutstanding = totalAmountGross - totalPaid;
 
             return {
-                currentPrincipal: principal,
-                accumulatedInterest: Math.max(0, accumulatedInterest),
-                totalAmountGross: Math.max(0, totalAmountGross),
-                totalOutstanding: Math.max(0, totalOutstanding),
-                totalPaid: totalPaid,
-                monthlyInterest: monthlyInterest
+                currentPrincipal: principal, accumulatedInterest: Math.max(0, accumulatedInterest),
+                totalAmountGross: Math.max(0, totalAmountGross), totalOutstanding: Math.max(0, totalOutstanding),
+                totalPaid: totalPaid, monthlyInterest: monthlyInterest, totalDays: totalDays,
+                monthsPart: monthsPart, daysPart: daysPart
             };
         }
 
         function renderApp() {
             const listDiv = document.getElementById('loanList');
             listDiv.innerHTML = '';
-
             let grandTotalOutstanding = 0;
             let grandTotalPaid = 0;
 
@@ -1799,7 +1632,6 @@
 
             document.getElementById('totalOutstandingDisplay').innerText = '₹' + grandTotalOutstanding.toFixed(0);
             document.getElementById('totalPaidDisplay').innerText = '₹' + grandTotalPaid.toFixed(0);
-
             if (currentOpenLoanId) renderDetailPageContent(currentOpenLoanId);
         }
 
@@ -1811,13 +1643,16 @@
         }
 
         function renderDetailPageContent(loanId) {
-            const loan = loans.find(l => l.id === loanId);
+            const loan = loans.find(l => String(l.id) === String(loanId));
             if (!loan) return;
-
             const math = calculateLoanMath(loan);
 
             document.getElementById('detailHeaderTitle').innerText = loan.name;
             document.getElementById('detailHeaderSub').innerText = `Taken on ${new Date(loan.startDate).toLocaleDateString('en-IN')}`;
+
+            const durationTxt = currentLang === 'hi'
+                ? `${math.monthsPart} महीने ${math.daysPart} दिन (${math.totalDays} दिन)`
+                : `${math.monthsPart} Months ${math.daysPart} Days (${math.totalDays} Days)`;
 
             const container = document.getElementById('detailPageContent');
             container.innerHTML = `
@@ -1830,7 +1665,9 @@
                     <div class="details-grid">
                         <div class="detail-item"><span class="label">Principal Amount</span><span class="value">₹${parseFloat(loan.amount).toLocaleString('en-IN')}</span></div>
                         <div class="detail-item"><span class="label">Monthly Rate</span><span class="value">${loan.rate}% (₹${math.monthlyInterest.toFixed(0)}/m)</span></div>
+                        <div class="detail-item"><span class="label">${translations[currentLang].totalDurationTxt}</span><span class="value" style="color:var(--primary)">${durationTxt}</span></div>
                         <div class="detail-item"><span class="label">Total Interest</span><span class="value" style="color:var(--warning)">₹${math.accumulatedInterest.toFixed(0)}</span></div>
+                        <div class="detail-item"><span class="label">${translations[currentLang].totalAmountTxt}</span><span class="value" style="color:#a855f7">₹${math.totalAmountGross.toFixed(0)}</span></div>
                         <div class="detail-item"><span class="label">Total Paid Back</span><span class="value" style="color:var(--success)">₹${math.totalPaid.toLocaleString('en-IN')}</span></div>
                     </div>
 
@@ -1848,7 +1685,7 @@
         }
 
         function openHistoryPage(loanId) {
-            const loan = loans.find(l => l.id === loanId);
+            const loan = loans.find(l => String(l.id) === String(loanId));
             if (!loan) return;
 
             document.getElementById('historyHeaderTitle').innerText = `${loan.name}'s History`;
@@ -1882,45 +1719,56 @@
             currentOpenLoanId = null;
         }
 
-        function saveLoan(e) {
+        async function saveLoan(e) {
             e.preventDefault();
             const newLoan = {
                 id: Date.now().toString(),
                 name: document.getElementById('loanName').value,
                 amount: document.getElementById('loanAmount').value,
                 rate: document.getElementById('loanRate').value,
-                startDate: document.getElementById('loanDate').value,
-                payments: []
+                startDate: document.getElementById('loanDate').value
             };
-            loans.unshift(newLoan);
-            saveLoansToStorage(); closeModal('loanModal');
-            document.getElementById('loanForm').reset();
-            document.getElementById('loanDate').valueAsDate = new Date();
-            renderApp();
-        }
 
-        function deleteLoan(loanId) {
-            const msg = currentLang === 'hi' ? 'क्या आप इस ऋणदाता एंट्री को हटाना चाहते हैं?' : 'Kya aap is lender entry ko delete karna chahte hain?';
-            if (confirm(msg)) {
-                loans = loans.filter(l => l.id !== loanId);
-                saveLoansToStorage(); goBack(); renderApp();
+            const res = await apiRequest('addLoan', { mobile: currentBorrower.mobile, loan: newLoan });
+            if (res.status === "success") {
+                closeModal('loanModal');
+                document.getElementById('loanForm').reset();
+                setDateValue('loanDate', new Date());
+                initSession();
+            } else {
+                await showAlert(res.message || "Failed to add loan", 'Error', 'error');
             }
         }
 
-        function savePayment(e) {
+        async function deleteLoan(loanId) {
+            const msg = currentLang === 'hi' ? 'क्या आप इस ऋणदाता एंट्री को हटाना चाहते हैं?' : 'Are you sure you want to delete this lender entry?';
+            const confirmed = await showConfirm(msg, 'Confirm Delete');
+            if (confirmed) {
+                const res = await apiRequest('deleteLoan', { mobile: currentBorrower.mobile, loanId: loanId });
+                if (res.status === "success") {
+                    goBack();
+                    initSession();
+                } else {
+                    await showAlert(res.message || "Failed to delete loan", 'Error', 'error');
+                }
+            }
+        }
+
+        async function savePayment(e) {
             e.preventDefault();
             const loanId = document.getElementById('payLoanId').value;
             const amount = document.getElementById('payAmount').value;
             const date = document.getElementById('payDate').value;
             const remark = document.getElementById('payRemark').value;
 
-            const idx = loans.findIndex(l => l.id === loanId);
-            if (idx !== -1) {
-                loans[idx].payments.push({ amount, date, remark });
-                saveLoansToStorage(); closeModal('paymentModal');
+            const res = await apiRequest('addPayment', { mobile: currentBorrower.mobile, loanId, amount, date, remark });
+            if (res.status === "success") {
+                closeModal('paymentModal');
                 document.getElementById('paymentForm').reset();
-                document.getElementById('payDate').valueAsDate = new Date();
-                renderApp();
+                setDateValue('payDate', new Date());
+                initSession();
+            } else {
+                await showAlert(res.message || "Failed to add payment", 'Error', 'error');
             }
         }
 
