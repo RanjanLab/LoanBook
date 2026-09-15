@@ -274,7 +274,7 @@
     <!-- Global API Loader -->
     <div class="global-loader" id="globalLoader">
         <div class="spinner"></div>
-        <span id="loaderText">Syncing Data...</span>
+        <span id="loaderText">Please Wait...</span>
     </div>
 
     <!-- Custom Alert & Confirm Popup Modal -->
@@ -1002,7 +1002,7 @@
             }
         }
 
-        function showLoader(show, text = "Syncing Data...") {
+        function showLoader(show, text = "Please Wait...") {
             const loader = document.getElementById('globalLoader');
             document.getElementById('loaderText').innerText = text;
             loader.style.display = show ? 'flex' : 'none';
@@ -1117,12 +1117,23 @@
 
         let deferredPrompt = null;
         function isAppInstalled() {
-            return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            return window.matchMedia('(display-mode: standalone)').matches || 
+                   window.navigator.standalone === true ||
+                   document.referrer.includes('android-app://') ||
+                   localStorage.getItem('pwaInstalledState') === 'true';
         }
 
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e;
-            if (!isAppInstalled()) document.getElementById('pwaBanner').classList.add('show');
+            e.preventDefault(); 
+            deferredPrompt = e;
+            if (!isAppInstalled()) {
+                document.getElementById('pwaBanner').classList.add('show');
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            localStorage.setItem('pwaInstalledState', 'true');
+            document.getElementById('pwaBanner').classList.remove('show');
         });
 
         document.getElementById('installPwaBtn').addEventListener('click', async () => {
@@ -1130,6 +1141,9 @@
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 deferredPrompt = null;
+                if (outcome === 'accepted') {
+                    localStorage.setItem('pwaInstalledState', 'true');
+                }
                 document.getElementById('pwaBanner').classList.remove('show');
             }
         });
@@ -1141,7 +1155,7 @@
 
         let currentAuthMode = 'login';
         let currentBorrower = null;
-        let activeMobileSession = sessionStorage.getItem('activeBorrowerMobile') || null;
+        let activeMobileSession = localStorage.getItem('activeBorrowerMobile') || null;
         let loans = [];
         let walletTxs = [];
         let referredList = [];
@@ -1152,6 +1166,10 @@
         window.addEventListener('DOMContentLoaded', () => {
             applyTheme(currentTheme);
             applyLanguage(currentLang);
+
+            if (isAppInstalled()) {
+                document.getElementById('pwaBanner').classList.remove('show');
+            }
 
             const urlParams = new URLSearchParams(window.location.search);
             const refCodeFromUrl = urlParams.get('ref');
@@ -1217,7 +1235,7 @@
                     document.getElementById('alertMobile').innerText = mobile;
                     document.getElementById('alertPass').innerText = password;
                     document.getElementById('regAlertModal').classList.add('active');
-                    sessionStorage.setItem('activeBorrowerMobile', mobile);
+                    localStorage.setItem('activeBorrowerMobile', mobile);
                     activeMobileSession = mobile;
                     initSession(mobile);
                 } else {
@@ -1226,7 +1244,7 @@
             } else {
                 const res = await apiRequest('login', { mobile, password });
                 if (res.status === "success") {
-                    sessionStorage.setItem('activeBorrowerMobile', mobile);
+                    localStorage.setItem('activeBorrowerMobile', mobile);
                     activeMobileSession = mobile;
                     initSession(mobile);
                 } else {
@@ -1236,7 +1254,7 @@
         }
 
         function logoutBorrower() {
-            sessionStorage.removeItem('activeBorrowerMobile');
+            localStorage.removeItem('activeBorrowerMobile');
             activeMobileSession = null;
             currentBorrower = null;
             loans = [];
